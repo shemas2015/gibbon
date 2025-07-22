@@ -294,18 +294,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Students/student_view_deta
 
                         $table->setTitle(__('General Information'));
 
-                        if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage.php') == true) {
-                            $table->addHeaderAction('view', __('View Status Log'))
+                        $table->addHeaderAction('edit', __('Edit'))
                                     ->displayLabel()
                                     ->addParam('gibbonPersonID', $gibbonPersonID)
-                                    ->setURL('/modules/User Admin/user_manage_view_status_log.php')
-                                    ->modalWindow();
-
-                            $table->addHeaderAction('edit', __('Edit'))
-                                    ->displayLabel()
-                                    ->addParam('gibbonPersonID', $gibbonPersonID)
-                                    ->setURL('/modules/User Admin/user_manage_edit.php');
-                        }
+                                    ->setURL('/modules/User Admin/user_documents.php');
 
                         $table->addColumn('name', __('Name'))
                                 ->format(Format::using('name', ['', 'preferredName', 'surname', 'Student']));

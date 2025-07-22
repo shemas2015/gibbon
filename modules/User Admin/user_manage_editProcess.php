@@ -262,6 +262,40 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage_edi
                     exit();
                 }
 
+                //unapproved the documents that not exist in post request but is approved
+                $modifiedDocArr = is_array($_POST["appr_document"]) ? array_keys($_POST["appr_document"]) : [];
+                $modifiedDoc =  implode(",",array_map('intval', $modifiedDocArr));
+
+                $sql = "update gibbonPersonalDocument
+                            set approvalStatus = 'not approved'
+                        where foreignTableID = :gibbonPersonID 
+                            and gibbonPersonalDocumentTypeID not in (:modifiedDoc)
+                        AND approvalStatus = 'approved';";
+
+                        $data = array('modifiedDoc' => $modifiedDoc,'gibbonPersonID' => $gibbonPersonID);
+                        $result = $connection2->prepare($sql);
+                        $result->execute($data);
+
+
+                
+
+                //Approved documents
+                if (isset($_POST["appr_document"]) && is_array($_POST["appr_document"]) && reset($_SESSION)["gibbonRoleIDPrimary"] == 1 ) {
+                    foreach ($_POST["appr_document"] as $key => $value) {
+                        $sql = "UPDATE gibbonPersonalDocument
+                        SET approvalStatus = 'approved',
+                            approvalDate = now(),
+                            approvedBy = ".reset($_SESSION)["userdata"]["gibbonPersonID"]."
+                        WHERE gibbonPersonalDocumentTypeID = :key_document
+                        AND foreignTableID = :gibbonPersonID
+                        AND approvalStatus != 'approved';";
+
+                        $data = array('key_document' => $key, 'gibbonPersonID' => $gibbonPersonID);
+                        $result = $connection2->prepare($sql);
+                        $result->execute($data);
+                    }
+                }
+
                 if ($result->rowCount() > 0) {
                     $URL .= '&return=error3';
                     header("Location: {$URL}");
