@@ -120,7 +120,7 @@ class PersonalDocumentGateway extends QueryableGateway implements ScrubbableGate
 
         if (!empty($foreignTable) && !empty($foreignTableID)) {
             $query
-                ->cols(['gibbonPersonalDocument.gibbonPersonalDocumentID', 'gibbonPersonalDocument.foreignTable', 'gibbonPersonalDocument.foreignTableID', 'gibbonPersonalDocument.documentName', 'gibbonPersonalDocument.documentNumber', 'gibbonPersonalDocument.documentType', 'gibbonPersonalDocument.country', 'gibbonPersonalDocument.dateIssue', 'gibbonPersonalDocument.dateExpiry', 'gibbonPersonalDocument.filePath'])
+                ->cols(['gibbonPersonalDocument.gibbonPersonalDocumentID', 'gibbonPersonalDocument.foreignTable', 'gibbonPersonalDocument.foreignTableID', 'gibbonPersonalDocument.documentName', 'gibbonPersonalDocument.documentNumber', 'gibbonPersonalDocument.documentType', 'gibbonPersonalDocument.country', 'gibbonPersonalDocument.dateIssue', 'gibbonPersonalDocument.dateExpiry', 'gibbonPersonalDocument.filePath','gibbonPersonalDocument.approvalStatus'])
                 ->leftJoin('gibbonPersonalDocument', 'gibbonPersonalDocument.gibbonPersonalDocumentTypeID=gibbonPersonalDocumentType.gibbonPersonalDocumentTypeID AND gibbonPersonalDocument.foreignTable=:foreignTable AND gibbonPersonalDocument.foreignTableID=:foreignTableID')
                 ->bindValue('foreignTable', $foreignTable)
                 ->bindValue('foreignTableID', $foreignTableID);

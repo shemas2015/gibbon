@@ -33,6 +33,7 @@ class FileUpload extends Input
 {
     protected $absoluteURL = '';
     protected $deleteAction = '';
+    protected $attachmentsArray = [];
 
     protected $attachmentName;
     protected $attachmentPath;
@@ -80,6 +81,11 @@ class FileUpload extends Input
         $this->attachments[$name] = $filePath;
 
         return $this;
+    }
+
+
+    public function addAttachment($document){
+        $this->attachmentsArray[] = $document;
     }
 
     /**
@@ -215,6 +221,60 @@ class FileUpload extends Input
                     }
 
                     $output .= '</div>';
+                    
+                    
+                    //Script for enable the check when clicked on check icon
+                    $output .= "
+                    <script>
+                        function changeApprove(element,elementId , color){
+                            event.preventDefault();
+                            let el = document.getElementById(elementId);
+
+                            if(el === null){
+                                return;
+                            }
+
+
+
+                            let isChecked = el.checked;
+
+                            if (isChecked) {
+                                let conf_doc = confirm('Do you really want to approve that document?');
+                                if(!conf_doc){
+                                    return false;
+                                }
+                                element.style.color = 'gray';
+                            } else {
+                                let conf_doc = confirm('Do you really want to disapprove that document?');
+                                if(!conf_doc){
+                                    return false;
+                                }
+                                element.style.color = 'green';
+                            }
+                            document.getElementById(elementId).checked = !isChecked;
+                            
+                        }
+                    </script>";
+
+                    $currentDocument = reset(array_filter($this->attachmentsArray, fn($item) => $item['filePath'] === $attachmentPath));
+                    $approved = false;
+                    $classColorAppr = "inline-button text-gray-600";
+                    $iconAppr = "check";
+                    if (isset($currentDocument['approvalStatus']) && $currentDocument['approvalStatus'] == "approved") {
+                        $approved = true;
+                        $classColorAppr = "inline-button text-green-600";
+                    }
+                    elseif(isset($currentDocument['approvalStatus']) && $currentDocument['approvalStatus'] == "not approved"){
+                        $classColorAppr = "inline-button text-red-600";
+                        $iconAppr = "reject";
+                    }
+
+                    $output .= "<a title='".__('Approve')."' class='$classColorAppr'  href='#' onclick=\"changeApprove(this,'appr_".$attachmentName."',true)\">";
+                    $output .= icon('solid', $iconAppr, 'size-6 sm:size-5');
+                    $output .= '</a>';
+                    if((int)reset($_SESSION)["gibbonRoleIDPrimary"] === 1 ){
+                        $output .= '<input type="checkbox" name="appr_'.$attachmentName.'" id="appr_'.$attachmentName.'" '.($approved == "approved" ? 'checked' : '').' class="hidden">';
+                    }
 
                     $output .=  "<a download title='".__('Download')."' class='inline-button text-gray-600' href='".$this->absoluteURL.$attachmentPath."'>";
                     $output .= icon('solid', 'download', 'size-6 sm:size-5');

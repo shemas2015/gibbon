@@ -153,6 +153,7 @@ class PersonalDocuments extends Input
                                      ->required($document['required'] == 'Y' && $index == 0);
                         if (!empty($document['filePath'])) {
                             $input->setAttachment($name.'['.$document['gibbonPersonalDocumentTypeID'].']['.$field.']', $this->absoluteURL, $document['filePath']);
+                            $input->addAttachment($document);
                         }
                         break;
                 }
