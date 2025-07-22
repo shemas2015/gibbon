@@ -32,7 +32,6 @@ use Gibbon\Domain\User\UserGateway;
 
 //Module includes
 require_once __DIR__ . '/moduleFunctions.php';
-
 if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_documents.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
@@ -46,7 +45,8 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_documents.
 
     //Check if gibbonPersonID specified
     $gibbonPersonID = $_GET['gibbonPersonID'] ?? '';
-    if (empty($gibbonPersonID)) {
+    
+    if (empty($gibbonPersonID) || reset($_SESSION)["gibbonPersonID"] !== $gibbonPersonID)  {
         $page->addError(__('You have not specified one or more required parameters.'));
     } else {
         $userGateway = $container->get(UserGateway::class);
