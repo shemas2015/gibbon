@@ -226,9 +226,9 @@ class FileUpload extends Input
                     //Script for enable the check when clicked on check icon
                     $output .= "
                     <script>
-                        function changeApprove(element,elementId , color){
+                        function changeApprove(elementId,checkValue){
                             event.preventDefault();
-                            let el = document.getElementById(elementId);
+                            let el = document.getElementById('appr_'+elementId);
 
                             if(el === null){
                                 return;
@@ -236,44 +236,43 @@ class FileUpload extends Input
 
 
 
-                            let isChecked = el.checked;
-
-                            if (isChecked) {
-                                let conf_doc = confirm('Do you really want to approve that document?');
-                                if(!conf_doc){
-                                    return false;
-                                }
-                                element.style.color = 'gray';
-                            } else {
-                                let conf_doc = confirm('Do you really want to disapprove that document?');
-                                if(!conf_doc){
-                                    return false;
-                                }
-                                element.style.color = 'green';
+                            if( checkValue ){
+                                document.getElementById('appr_btn_'+elementId).style.color = 'green';
+                                document.getElementById('unappr_btn_'+elementId).style.color = 'gray';
                             }
-                            document.getElementById(elementId).checked = !isChecked;
+                            else
+                            {
+                                document.getElementById('unappr_btn_'+elementId).style.color = 'red';
+                                document.getElementById('appr_btn_'+elementId).style.color = 'gray';
+                            }
+
+                            document.getElementById('appr_'+elementId).value = checkValue ? 'on' : 'off';
                             
                         }
                     </script>";
 
                     $currentDocument = reset(array_filter($this->attachmentsArray, fn($item) => $item['filePath'] === $attachmentPath));
                     $approved = false;
-                    $classColorAppr = "inline-button text-gray-600";
-                    $iconAppr = "check";
+
+                    $checkDocumentValue = "";
                     if (isset($currentDocument['approvalStatus']) && $currentDocument['approvalStatus'] == "approved") {
-                        $approved = true;
-                        $classColorAppr = "inline-button text-green-600";
+                        $checkDocumentValue = "on";
                     }
                     elseif(isset($currentDocument['approvalStatus']) && $currentDocument['approvalStatus'] == "not approved"){
-                        $classColorAppr = "inline-button text-red-600";
-                        $iconAppr = "reject";
+                        $checkDocumentValue = "off";
                     }
+                    
 
-                    $output .= "<a title='".__('Approve')."' class='$classColorAppr'  href='#' onclick=\"changeApprove(this,'appr_".$attachmentName."',true)\">";
-                    $output .= icon('solid', $iconAppr, 'size-6 sm:size-5');
+                    $output .= "<a title='".__('Approve')."' class='".($checkDocumentValue == "on" ? "inline-button text-green-600" : "inline-button text-gray-600")."'  href='#' id='appr_btn_".$attachmentName."' onclick=\"changeApprove('".$attachmentName."',true)\">";
+                    $output .= icon('solid', "check", 'size-6 sm:size-5');
                     $output .= '</a>';
+
+                    $output .= "<a title='".__('Approve')."' class='".($checkDocumentValue == "off" ? "inline-button text-red-600" : "inline-button text-gray-600")."'  href='#' id='unappr_btn_".$attachmentName."' onclick=\"changeApprove('".$attachmentName."',false)\">";
+                    $output .= icon('solid', "reject", 'size-6 sm:size-5');
+                    $output .= '</a>';
+
                     if((int)reset($_SESSION)["gibbonRoleIDPrimary"] === 1 ){
-                        $output .= '<input type="checkbox" name="appr_'.$attachmentName.'" id="appr_'.$attachmentName.'" '.($approved == "approved" ? 'checked' : '').' class="hidden">';
+                        $output .= '<input type="checkbox" value="" name="appr_'.$attachmentName.'" id="appr_'.$attachmentName.'" checked class="hidden">';
                     }
 
                     $output .=  "<a download title='".__('Download')."' class='inline-button text-gray-600' href='".$this->absoluteURL.$attachmentPath."'>";

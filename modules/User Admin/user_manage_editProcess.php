@@ -28,6 +28,7 @@ use Gibbon\Domain\User\UserStatusLogGateway;
 use Gibbon\Data\Validator;
 use Gibbon\Domain\User\RoleGateway;
 
+
 require_once '../../gibbon.php';
 
 $_POST = $container->get(Validator::class)->sanitize($_POST, ['website' => 'URL']);
@@ -261,38 +262,52 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage_edi
                     header("Location: {$URL}");
                     exit();
                 }
+                
+                
+                
+                //Update unapproved documents
+                $approvedArrayDocuments = is_null($_POST["appr_document"]) ? [] :  array_keys(array_filter($_POST["appr_document"], fn($v) => $v['filePath'] === 'on')) ;
+                $approvedDocuments = implode(",",$approvedArrayDocuments);
 
-                //unapproved the documents that not exist in post request but is approved
-                $modifiedDocArr = is_array($_POST["appr_document"]) ? array_keys($_POST["appr_document"]) : [];
-                $modifiedDoc =  implode(",",array_map('intval', $modifiedDocArr));
-
-                $sql = "update gibbonPersonalDocument
-                            set approvalStatus = 'not approved'
-                        where foreignTableID = :gibbonPersonID 
-                            and gibbonPersonalDocumentTypeID not in (:modifiedDoc)
-                        AND approvalStatus = 'approved';";
-
-                        $data = array('modifiedDoc' => $modifiedDoc,'gibbonPersonID' => $gibbonPersonID);
-                        $result = $connection2->prepare($sql);
-                        $result->execute($data);
-
+                if(sizeof($approvedArrayDocuments) > 0 ){
+                    $sql = "update gibbonPersonalDocument
+                    set approvalStatus = 'approved',
+                    approvalDate = now(),
+                    approvedBy = ".reset($_SESSION)["userdata"]["gibbonPersonID"]."
+                    where foreignTableID = :gibbonPersonID 
+                    and gibbonPersonalDocumentTypeID in (".$approvedDocuments.")
+                    AND approvalStatus != 'approved';";
+                    
+                    $data = array('gibbonPersonID' => $gibbonPersonID);
+                    $resultDoc = $connection2->prepare($sql);
+                    $resultDoc->execute($data);
+                }
+                    
 
                 
+                //Update unapproved undocuments
+                $unapprovedArrayDocuments = is_null($_POST["appr_document"]) ? [] : array_keys(array_filter($_POST["appr_document"], fn($v) => $v['filePath'] === 'off'));
+                $unapprovedDocuments = implode(",",$unapprovedArrayDocuments);
 
-                //Approved documents
-                if (isset($_POST["appr_document"]) && is_array($_POST["appr_document"]) && reset($_SESSION)["gibbonRoleIDPrimary"] == 1 ) {
-                    foreach ($_POST["appr_document"] as $key => $value) {
-                        $sql = "UPDATE gibbonPersonalDocument
-                        SET approvalStatus = 'approved',
-                            approvalDate = now(),
-                            approvedBy = ".reset($_SESSION)["userdata"]["gibbonPersonID"]."
-                        WHERE gibbonPersonalDocumentTypeID = :key_document
-                        AND foreignTableID = :gibbonPersonID
-                        AND approvalStatus != 'approved';";
+                if(sizeof($unapprovedArrayDocuments) > 0){
+                    $sql = "update gibbonPersonalDocument
+                                set approvalStatus = 'not approved'
+                            where foreignTableID = :gibbonPersonID 
+                                and gibbonPersonalDocumentTypeID in (".$unapprovedDocuments.")
+                            AND approvalStatus != 'not approved';";
 
-                        $data = array('key_document' => $key, 'gibbonPersonID' => $gibbonPersonID);
-                        $result = $connection2->prepare($sql);
-                        $result->execute($data);
+                    $connection2->setAttribute(PDO::MYSQL_ATTR_FOUND_ROWS, true);
+                    $data = array('gibbonPersonID' => $gibbonPersonID);
+                    $resultDoc = $connection2->prepare($sql);
+                    $resultDoc->execute($data);
+                    if( $resultDoc->rowCount() > 0){
+                        $notification =  new NotificationGateway($pdo);
+                        $notification->insertNotification([
+                                'gibbonPersonID' => $gibbonPersonID,
+                                'text'           => 'Some documents were rejected',
+                                'moduleName'     => 'documents',
+                                'actionLink'     => '/index.php?q=/modules/User+Admin/user_documents.php&gibbonPersonID='.$gibbonPersonID,
+                        ]);
                     }
                 }
 
