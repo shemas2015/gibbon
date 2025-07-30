@@ -12,15 +12,27 @@ Fast Finder
 
 <style>
     #fastFinder input[type="search"] {
-        background-color: rgba(255,255,255,0.2) !important;
-        border-radius: .25rem 0 0 .25rem !important;
-        border: 1px transparent !important;
+        background-color: #FFFFFF;
+        {% if roleCategory == 'Staff' %}
+            border-top: 1px solid #CBDCE8;
+            border-left: 1px solid #CBDCE8;
+            border-bottom: 1px solid #CBDCE8;
+            border-right: none; 
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        {% else %}
+            border: 1px solid #CBDCE8;
+            border-radius: 5px;
+        {% endif %}
+
+
     }
 
     #fastFinder select {
-        background-color: rgba(255,255,255,0.2) !important;
-        border: 1px transparent !important;
-        border-radius: 0 .25rem .25rem 0 !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid #CBDCE8 !important;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
         margin-left: 1px !important;
     }
 
@@ -40,10 +52,10 @@ Fast Finder
 
     <div class="relative flex">
         <button type="button" @click="finderSearch=''" class="absolute top-0 left-0 mt-2.5 ml-2.5">
-            {{ icon('basic', 'search', 'size-5 text-white opacity-50') }}
+            {{ icon('basic', 'search', 'size-5 text-gray-600 opacity-50') }}
         </button>
 
-        <input class="form-control flex-1 text-white placeholder:text-white placeholder:text-opacity-60 text-sm pl-10 h-10" 
+        <input class="form-control flex-1 text-gray-600 placeholder:text-gray-600 placeholder:text-opacity-60 text-sm pl-10 h-10" 
             type="search" autocomplete="off" 
             name="search" placeholder="{{ __('Search') }}" 
             hx-post="index_fastFinder_ajax.php" 
@@ -56,7 +68,7 @@ Fast Finder
         >
 
         {% if roleCategory == 'Staff' %}
-        <select name="searchType" class="w-20 h-10 text-white text-sm font-bold hidden sm:block"
+        <select name="searchType" class="w-20 h-10 text-gray-600 text-sm font-bold block"
             hx-post="index_fastFinder_ajax.php" 
             hx-target="#search-results" 
             hx-include="[name='search']"

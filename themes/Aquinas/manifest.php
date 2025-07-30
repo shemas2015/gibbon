@@ -19,25 +19,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Sets the database connection information.
- * You can supply an optional $databasePort if your server requires one.
- */
-$databaseServer = '127.0.0.1';
-$databaseUsername = 'root';
-$databasePassword = 'root';
-$databaseName = 'sis_aquinas';
+//This file describes the module, including database tables
 
-/**
- * Sets a globally unique id, to allow multiple installs on a single server.
- */
-$guid = '0m7055stj-yygf-jqu0-ged2-gf9372wcrxx';
+//Basic variables
+$name = 'Aquinas';
+$description = "Aquinas Network theme";
+$version = '1.0.00';
+$author = 'Victor Escalona';
+$url = 'https://github.com/victores21';
+$responsive = 'Y';
 
-/**
- * Sets system-wide caching factor, used to balance performance and freshness.
- * Value represents number of page loads between cache refresh.
- * Must be positive integer. 1 means no caching.
- */
-/** $caching = 10; **/
-$caching = 1;
-define('DEVELOPMENT_MODE', true);
+// Optionally define a set of theme colours that this theme supports.
+$themeColours = [
+    'purple' => __('Purple'),
+    'indigo' => __('Indigo'),
+    'blue'   => __('Blue'),
+    'sky'    => __('Sky'),
+    'teal'   => __('Teal'),
+    'green'  => __('Green'),
+    'yellow' => __('Yellow'),
+    'orange' => __('Orange'),
+    'red'    => __('Red'),
+    'pink'   => __('Pink'),
+    'fuchsia' => __('Violet'),
+];

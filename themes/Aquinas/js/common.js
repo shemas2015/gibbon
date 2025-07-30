@@ -1,4 +1,3 @@
-<?php
 /*
 Gibbon: the flexible, open school platform
 Founded by Ross Parker at ICHK Secondary. Built by Ross Parker, Sandra Kuipers and the Gibbon community (https://gibbonedu.org/about/)
@@ -18,26 +17,3 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-/**
- * Sets the database connection information.
- * You can supply an optional $databasePort if your server requires one.
- */
-$databaseServer = '127.0.0.1';
-$databaseUsername = 'root';
-$databasePassword = 'root';
-$databaseName = 'sis_aquinas';
-
-/**
- * Sets a globally unique id, to allow multiple installs on a single server.
- */
-$guid = '0m7055stj-yygf-jqu0-ged2-gf9372wcrxx';
-
-/**
- * Sets system-wide caching factor, used to balance performance and freshness.
- * Value represents number of page loads between cache refresh.
- * Must be positive integer. 1 means no caching.
- */
-/** $caching = 10; **/
-$caching = 1;
-define('DEVELOPMENT_MODE', true);
