@@ -106,23 +106,24 @@ class StudentDashboard implements OutputableInterface, ContainerAwareInterface
 
         //GET TIMETABLE
         $timetable = false;
-        if (
-            isActionAccessible($guid, $connection2, '/modules/Timetable/tt.php') and $this->session->get('username') != ''
-            && $this->session->get('gibbonRoleIDCurrentCategory')
-        ) {
-            $_POST = (new Validator(''))->sanitize($_POST);
-            $jsonQuery = [
-                'gibbonTTID' => $_GET['gibbonTTID'] ?? '',
-                'ttDate' => $_POST['ttDate'] ?? '',
-            ];
+        // Descomentar para activar el TIMETABLE DEL HOMEPAGE
+        // if (
+        //     isActionAccessible($guid, $connection2, '/modules/Timetable/tt.php') and $this->session->get('username') != ''
+        //     && $this->session->get('gibbonRoleIDCurrentCategory')
+        // ) {
+        //     $_POST = (new Validator(''))->sanitize($_POST);
+        //     $jsonQuery = [
+        //         'gibbonTTID' => $_GET['gibbonTTID'] ?? '',
+        //         'ttDate' => $_POST['ttDate'] ?? '',
+        //     ];
 
-            $apiEndpoint = (string)Url::fromHandlerRoute('index_tt_ajax.php')->withQueryParams($jsonQuery);
+        //     $apiEndpoint = (string)Url::fromHandlerRoute('index_tt_ajax.php')->withQueryParams($jsonQuery);
             
-            $timetable .= '<h2>'.__('My Timetable').'</h2>';
-            $timetable .= "<div hx-get='".$apiEndpoint."' hx-trigger='load' style='width: 100%; min-height: 40px; text-align: center'>";
-            $timetable .= "<img style='margin: 10px 0 5px 0' src='".$this->session->get('absoluteURL')."/themes/Default/img/loading.gif' alt='".__('Loading')."' onclick='return false;' /><br/><p style='text-align: center'>".__('Loading').'</p>';
-            $timetable .= '</div>';
-        }
+        //     $timetable .= '<h2>'.__('My Timetable').'</h2>';
+        //     $timetable .= "<div hx-get='".$apiEndpoint."' hx-trigger='load' style='width: 100%; min-height: 40px; text-align: center'>";
+        //     $timetable .= "<img style='margin: 10px 0 5px 0' src='".$this->session->get('absoluteURL')."/themes/Default/img/loading.gif' alt='".__('Loading')."' onclick='return false;' /><br/><p style='text-align: center'>".__('Loading').'</p>';
+        //     $timetable .= '</div>';
+        // }
 
         // TABS
         $tabs = [];

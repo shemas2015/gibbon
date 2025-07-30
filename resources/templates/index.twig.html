@@ -22,47 +22,74 @@ TODO: add template variable details.
         <a id="top"></a>
         {% set sidebarPos = isLoggedIn ? 'left' : 'right' %}
 
-        <div class="px-4 sm:px-6 lg:px-12 pb-24">
+        <!-- <div class="login-modal fixed flex justify-center items-center w-full h-full bg-white  z-10" style="background-color: #F5F7FA;">
+            <div class="login-modal-content w-full rounded-md shadow-md bg-white p-4" style="max-width: 530px;">
+                <p>Welcome, please enter your email and password to continue</p>
+                {{ include('navigation.twig.html') }}                 
 
+            </div>
+        </div> -->
+        <!-- <div class="px-4 sm:px-6 lg:px-12 pb-24"> -->
+        <!-- Main Content div -->
+        <div class="">
             {% block header %}
                 <div id="header" class="relative flex justify-between items-center">
 
-                    <a id="header-logo" class="block my-4 max-w-xs sm:max-w-full leading-none" href="{{ absoluteURL }}">
-                        <img class="block max-w-full {{ isLoggedIn ? 'h-12' : 'h-20 mt-4 mb-4' }}" alt="{{ organisationName }} Logo" src="{{ absoluteURL }}/{{ organisationLogo|default("themes/Default/img/logo.png")|trim('/', 'left') }}" style="max-height:100px;" />
+                    <a id="header-logo" class="block pl-4 pb-2 max-w-xs sm:max-w-full leading-none" href="{{ absoluteURL }}">
+                        <img class="p-2 block max-w-full {{ isLoggedIn ? 'h-12' : 'h-20 mt-4 mb-4' }}" alt="{{ organisationName }} Logo" src="{{ absoluteURL }}/{{ organisationLogo|default("themes/Default/img/logo.png")|trim('/', 'left') }}" style="max-height:100px;" />
                     </a>
 
+
+                     <!-- <div class=" notificationTray flex-grow relative"> -->
+                            <!-- <div class="flex flex-row-reverse items-center"> -->
+
+
+                            <!-- </div>
+                    </div> -->
+
+                    <!-- Notifications Avatar and Name-->
                     <div class="flex-grow flex items-center justify-end text-right text-sm text-{{ themeColour }}-200">
                         {% if isLoggedIn and currentUser %}
 
-                        <a href="{{ currentUser.url ?? './index.php?q=/preferences.php' }}" class="hidden sm:block text-{{ themeColour }}-200 hover:text-white">
-                            {{ currentUser.name }}
-                        </a>
+                            <div id="finderTray" class="hidden md:block mr-16 w-auto sm:w-full max-w-sm">
+                                {{ include('finder.twig.html') }}
+                            </div>
 
-                        <div class="relative px-4 py-4 {{ rightToLeft ? '-ml-3' : '-mr-3' }}" x-data="{menuOpen: false}" @mouseleave="menuOpen = false" @click.outside="menuOpen = false">
+                            <!-- Notifications and Messages -->
+                            <div id="notifications-container">
+                                {{ include('tray.twig.html') }}
+                            </div>
 
-                            <a @mouseenter="menuOpen = true" @click="menuOpen = !menuOpen" :class="{'ring-opacity-75': menuOpen, 'ring-opacity-25': !menuOpen}" hx-boost="true" hx-target="#content-wrap" hx-select="#content-wrap" hx-swap="outerHTML show:no-scroll swap:0s" href="{{ currentUser.url ?? '#' }}" class="{{ currentUser.image_240 ? 'flex-none' : 'flex items-center justify-center' }} block overflow-hidden w-10 h-10 rounded-full bg-gray-200 ring-white ring-2 cursor-pointer">
-                            {% if currentUser.image_240 %}
-                                <img class="w-full -mt-1" src="{{ absoluteURL }}/{{ currentUser.image_240 }}" />
-                            {% else %}
-                                <img class="w-full" src="{{ absoluteURL }}/themes/{{ gibbonThemeName }}/img/anonymous_75.jpg" />
-                            {% endif %}
+                            <!-- Image and Menu -->
+                            <div class="relative px-4 py-4 {{ rightToLeft ? '-ml-3' : '-mr-3' }}" x-data="{menuOpen: false}" @mouseleave="menuOpen = false" @click.outside="menuOpen = false">
+                                <a @mouseenter="menuOpen = true" @click="menuOpen = !menuOpen" :class="{'ring-opacity-75': menuOpen, 'ring-opacity-25': !menuOpen}" hx-boost="true" hx-target="#content-wrap" hx-select="#content-wrap" hx-swap="outerHTML show:no-scroll swap:0s" href="{{ currentUser.url ?? '#' }}" class="{{ currentUser.image_240 ? 'flex-none' : 'flex items-center justify-center' }} block overflow-hidden w-10 h-10 rounded-full bg-gray-200 ring-white ring-2 cursor-pointer">
+                                {% if currentUser.image_240 %}
+                                    <img class="w-full -mt-1" src="{{ absoluteURL }}/{{ currentUser.image_240 }}" />
+                                {% else %}
+                                    <img class="w-full" src="{{ absoluteURL }}/themes/{{ gibbonThemeName }}/img/anonymous_75.jpg" />
+                                {% endif %}
+                                </a>
+
+                                <ul x-cloak x-show="menuOpen" x-transition:enter.duration.250ms x-transition:leave.duration.100ms class="list-none m-0 bg-black bg-opacity-75 backdrop-blur-lg backdrop-contrast-125 backdrop-saturate-150 absolute rounded-md w-48 mt-1 p-1 sm:p-1.5 z-50 cursor-pointer {{ rightToLeft ? 'left-0' : 'right-0' }}">
+                                    {% for link in minorLinks|reverse %}
+                                    <li class="hover:bg-{{ themeColour }}-700 rounded">
+                                        <a @click="menuOpen = false" href="{{ link.url }}" class="flex justify-between items-center text-sm text-white focus:text-{{ themeColour }}-200 no-underline px-1 py-2 md:py-1 leading-normal {{ rightToLeft ? 'text-right' : 'text-left' }}" target="{{ link.target }}" {{ link.target == '_blank' ? 'rel="noopener noreferrer"' : '' }}>
+                                            {{- link.name|raw -}}
+
+                                            {% if link.target == '_blank' %}
+                                                {{ icon('basic', 'external-link', 'size-4 text-white text-opacity-50 pointer-events-none') }}
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+
+                            </div>
+
+                            <a href="{{ currentUser.url ?? './index.php?q=/preferences.php' }}" class="hidden sm:block text-{{ themeColour }}-200 hover:text-white">
+                                {{ currentUser.name }}
                             </a>
 
-                            <ul x-cloak x-show="menuOpen" x-transition:enter.duration.250ms x-transition:leave.duration.100ms class="list-none m-0 bg-black bg-opacity-75 backdrop-blur-lg backdrop-contrast-125 backdrop-saturate-150 absolute rounded-md w-48 mt-1 p-1 sm:p-1.5 z-50 cursor-pointer {{ rightToLeft ? 'left-0' : 'right-0' }}">
-                                {% for link in minorLinks|reverse %}
-                                <li class="hover:bg-{{ themeColour }}-700 rounded">
-                                    <a @click="menuOpen = false" href="{{ link.url }}" class="flex justify-between items-center text-sm text-white focus:text-{{ themeColour }}-200 no-underline px-1 py-2 md:py-1 leading-normal {{ rightToLeft ? 'text-right' : 'text-left' }}" target="{{ link.target }}" {{ link.target == '_blank' ? 'rel="noopener noreferrer"' : '' }}>
-                                        {{- link.name|raw -}}
-
-                                        {% if link.target == '_blank' %}
-                                            {{ icon('basic', 'external-link', 'size-4 text-white text-opacity-50 pointer-events-none') }}
-                                        {% endif %}
-                                    </a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-
-                        </div>
                         {% else %}
                             {% for link in minorLinks %}
                                 {{ link.prepend }}&nbsp;
@@ -77,18 +104,31 @@ TODO: add template variable details.
                             <img class="ml-3 -mt-2 w-12 h-12" title="{{ currentUser.houseName }}" style="vertical-align: -75%;" src="{{ absoluteURL }}/{{ currentUser.houseLogo }}"/>
                         {% endif %}
                     </div>
+
+
+                    
                 </div>
 
                 {% if isLoggedIn %}
-                <nav id="header-menu" class="flex-1 justify-between">
-                    {{ include('menu.twig.html') }}
-                </nav>
+                    <div class="menu-mobile block md:hidden p-4 flex justify-center items-center" style="background: #f5f7fa;">
+                        <div id="finderTray" class=""">
+                            {{ include('finder.twig.html') }}
+                        </div>             
+                    </div>
+                    
+
+
+                    <nav id="header-menu" class=" justify-between" style="background-color: #777777 !important;">
+                        {{ include('menu.twig.html') }}
+                    </nav>
                 {% endif %}
 
             {% endblock %}
         </div>
-        <div id="wrapOuter" class="flex-1 pt-24 bg-transparent-100">
-            <div id="wrap" class="px-0 sm:px-6 lg:px-12 -mt-48">
+        <!-- <div id="wrapOuter" class="flex-1 pt-24 bg-transparent-100"> -->
+        <div id="wrapOuter" class="mt-4 flex-1 bg-transparent-100">
+            <!-- <div id="wrap" class="px-0 sm:px-6 lg:px-16 -mt-48"> -->
+                <div id="wrap" class="px-0">
                 {% block beforePage %}
                 {% endblock beforePage %}
 

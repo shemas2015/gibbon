@@ -22,11 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Theme fundamentals based on Mollio, copyright Daemon Pty Limited 2006, http://www.daemon.com.au
 Used under "GNU Creative Commons License", http://creativecommons.org/licenses/GPL/2.0/
 */
-
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
 /* LINKS */
 
-
+body{
+    background: #F5F7FA !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+}
 
 /* TYPOGRAPHY */
 p {
@@ -1077,4 +1080,130 @@ table.smallIntBorder td.noPadding {
 
 .standardForm:not(.blank) .formRow:not(:last-child)  {
     border-bottom-width: 1px;
+}
+
+
+/* Aquinas New Theme */
+
+/* Colors */
+:root {
+    --blue-dark-aquinas: #1B2831;
+    --blue-theme-aquinas : #0084FF;
+    --blue-100-theme-aquinas: #DDF2FF;
+    --black: #000000;
+    --white: #FFFFFF;
+    --green-success: #00BC92; 
+
+}
+
+.a, a:not([class]){
+    color: var(--blue-theme-aquinas) !important;
+}
+
+#wrapOuter {
+    background-color: #F5F7FA !important;
+}
+
+#header {
+    background: var(--white) !important;
+    /* background:  #9f7db2 !important;; */
+}
+
+.success{
+    background-color: #E4FEF8 !important;
+    color: var(--green-success) !important;
+    font-weight: 600 !important;
+}
+
+table th{
+    background-color: #EDEFF3 !important;
+    color: #000000 !important;
+}
+
+.bg-gray-aquinas {
+    background-color:  #EDEFF3 !important;
+    color: #0B101494 !important;
+    font-size: 14px !important;
+
+}
+
+[aria-label] ol{
+    color: #0B101494 !important;
+}
+[aria-label] ol a {
+    color: var(--blue-theme-aquinas) !important;
+}
+
+#sidebar > div > nav > ul > li > h5 {
+    color: var(--black) !important;
+}
+
+[hx-select="#content-wrap"].bg-gray-300{
+    font-weight: 600 !important;
+    color: var(--blue-theme-aquinas) !important;
+    background-color: transparent !important;
+    text-decoration: underline !important;
+}
+
+.navigation-link:after {
+    background-color: var(--blue-theme-aquinas) !important;
+}
+
+button[type="button"].bg-gray-100{
+    background-color: var(--white) !important;
+}
+
+.message {
+    background-color: var(--blue-100-theme-aquinas) !important;
+    color: var(--blue-theme-aquinas) !important;
+}
+
+/* User name in navbar */
+#header a.text-purple-200{
+    color: var(--blue-dark-aquinas) !important;
+    font-weight: 500 !important;
+    max-width: 130px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    text-align: left !important;
+}
+
+/* Navbar Image profile */
+#header a.bg-gray-200{
+    height: 50px !important;
+    width: 50px !important;
+
+}
+#header a.bg-gray-200 img{
+    height: 100% !important;
+    width: 100% !important;
+    object-fit: cover !important;
+    border: 1px solid #EDEFF3;
+    
+}
+
+/* Notifications */
+#notifications-container{
+    width: 100px;
+}
+
+#messageWall span{
+    background-color: var(--blue-theme-aquinas) !important;
+}
+
+#notifications span{
+    background-color: var(--blue-theme-aquinas) !important;
+}
+
+/* Search Input */
+
+#search-input-component {
+    border: 1px solid red !important;
+}
+
+
+@media (min-width:768px){
+    #finderTray{
+        padding-right: 4rem;
+    }
 }

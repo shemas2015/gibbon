@@ -23,7 +23,7 @@ The Gibbon Team
 
 -->#}
 
-<span class="inline-block font-bold">
+<!-- <span class="inline-block font-bold">
     {{ __('Powered by') }} <a class="text-{{ themeColour }}-800" target='_blank' href='https://gibbonedu.org'>Gibbon</a> {{ versionName }}<br/>
 </span> 
 <br/>
@@ -36,4 +36,19 @@ The Gibbon Team
     <a class="text-{{ themeColour }}-800" target='_blank' href='https://gibbonedu.org/support/'>{{ __('Support') }}</a>
     <br/>
     {{ footerThemeAuthor }}<br/>
-</span>
+</span> -->
+
+
+<div class="footer-container flex flex-col items-center justify-center">
+    <div class="left text-xs">
+        Copyright: © 2024 Student Information System Admin. All Rights Reserved.
+    </div>
+    <div class="right mt-4 text-xs">
+        <div>
+            Powered By 
+        </div>
+        <div class="pl-4">
+            <img class="w-full h-full object-contain" src="{{ absoluteURL }}/themes/{{ gibbonThemeName }}/img/aquinas-logo.png" alt="{{ __('Notifications') }}" style="max-width:100px;">
+        </div>
+    </div>
+</div>

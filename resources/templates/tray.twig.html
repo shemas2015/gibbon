@@ -16,8 +16,8 @@ Main Menu: Displays the top-level categories and active modules.
         {%if statusTray.messageWall.messages %}
             <span class='badge  -mr-2 right-0' :class="read ? 'bg-{{ themeColour }}-400' : 'bg-red-500'">{{ statusTray.messageWall.messages }}</span>
         {% endif %}
+        {{ icon('outline', 'message-wall', 'minorLinkIcon size-10 -my-1 fill-current text-white ' ~ (statusTray.messageWall.messages ? 'opacity-100' : 'opacity-100') ) }}
 
-        {{ icon('outline', 'message-wall', 'minorLinkIcon size-10 -my-1 fill-current text-white ' ~ (statusTray.messageWall.messages ? 'opacity-75' : 'opacity-25') ) }}
     </a>
 {% endif %}
 
@@ -27,7 +27,7 @@ Main Menu: Displays the top-level categories and active modules.
                 {{ statusTray.notifications.count > 0 ? statusTray.notifications.count : '' }}
             </span>
 
-            {{ icon('outline', 'notifications', 'notificationIcon size-8 fill-current text-white ' ~ (statusTray.notifications.count ? 'opacity-75' : 'opacity-25') ) }}
+            {{ icon('outline', 'notifications', 'notificationIcon size-8 fill-current text-white ' ~ (statusTray.notifications.count ? 'opacity-100' : 'opacity-100') ) }}
         </a>
 
         <script type="text/javascript">
