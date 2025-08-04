@@ -73,7 +73,8 @@ class PersonalDocumentHandler
 
     public function updateDocumentsFromPOST($foreignTable = null, $foreignTableID = null, $params = [], &$personalDocumentFail = false)
     {
-        $documents = $this->personalDocumentGateway->selectPersonalDocuments(null, null, $params)->fetchAll();
+        $documents = $this->personalDocumentGateway->selectPersonalDocuments( $foreignTable ,  $foreignTableID , $params)->fetchAll();
+        
         if (empty($documents)) return;
 
         foreach ($documents as $document) {
@@ -99,9 +100,13 @@ class PersonalDocumentHandler
                         if (empty($value)) {
                             $personalDocumentFail = true;
                         }
+                        if(!is_null($document["filePath"])){
+                            $data["approvalStatus"] = "pending";
+                        }
                     } else if (empty($attachment)) {
                         // Remove the attachment if it has been deleted, otherwise retain the original value
                         $data[$field] = null;
+                        $data["approvalStatus"] = "pending";
                     }
                 } else {
                     // Handle all other data

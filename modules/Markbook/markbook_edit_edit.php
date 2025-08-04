@@ -199,6 +199,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_edi
                             $row->addLabel('file', __('Attachment'));
                             $row->addFileUpload('file')->setAttachment('attachment', $session->get('absoluteURL'), $values['attachment']);
 
+                        //Student Scores File
+                        if(!is_null( $values['studentsScoreFile'] )){
+                            $row = $form->addRow();
+                                $row->addLabel('studentScoresFile', __('Student Scores File'));
+                                $row->addFileUpload('studentScoresFile')->setAttachment('attachment', $session->get('absoluteURL'), $values['studentsScoreFile']);
+                        }
+
                         // DATE
                         if ($enableGroupByTerm == 'Y') {
                             $form->addRow()->addHeading('Term Date', __('Term Date'));

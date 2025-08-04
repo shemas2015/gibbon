@@ -196,20 +196,16 @@ class FileUpload extends Input
     protected function getElement()
     {
         $output = '';
-
         $output .= '<div class="w-full flex flex-col items-start">';
         
         if (!empty($this->attachments)) {
             // jQuery needs brackets in input names escaped, php needs backslashes escaped = double-escaped
             $idEscaped = str_replace(['[', ']'], ['\\\\[', '\\\\]'], $this->getID());
-            
 
             foreach ($this->attachments as $attachmentName => $attachmentPath) {
 
                 if (!empty($attachmentPath)) {
-
                     $output .= '<div class="input-box rounded-md w-full">';
-
                     $output .= '<div class="inline-label text-xs">';
                     $output .= __('Current attachment:').'<br/>';
                     $output .= '<a target="_blank" rel="noopener noreferrer" href="'.$this->absoluteURL.$attachmentPath.'">'.basename($attachmentPath).'</a>';
@@ -261,15 +257,17 @@ class FileUpload extends Input
                     elseif(isset($currentDocument['approvalStatus']) && $currentDocument['approvalStatus'] == "not approved"){
                         $checkDocumentValue = "off";
                     }
-                    
 
-                    $output .= "<a title='".__('Approve')."' class='".($checkDocumentValue == "on" ? "inline-button text-green-600" : "inline-button text-gray-600")."'  href='#' id='appr_btn_".$attachmentName."' onclick=\"changeApprove('".$attachmentName."',true)\">";
-                    $output .= icon('solid', "check", 'size-6 sm:size-5');
-                    $output .= '</a>';
+                    $approveDocuments = in_array($_GET["q"] , ["/modules/User Admin/user_documents.php","/modules/User Admin/user_manage_edit.php"]);
+                    if($approveDocuments){
+                        $output .= "<a title='".__('Approve')."' class='".($checkDocumentValue == "on" ? "inline-button text-green-600" : "inline-button text-gray-600")."'  href='#' id='appr_btn_".$attachmentName."' onclick=\"changeApprove('".$attachmentName."',true)\">";
+                        $output .= icon('solid', "check", 'size-6 sm:size-5');
+                        $output .= '</a>';
 
-                    $output .= "<a title='".__('Approve')."' class='".($checkDocumentValue == "off" ? "inline-button text-red-600" : "inline-button text-gray-600")."'  href='#' id='unappr_btn_".$attachmentName."' onclick=\"changeApprove('".$attachmentName."',false)\">";
-                    $output .= icon('solid', "reject", 'size-6 sm:size-5');
-                    $output .= '</a>';
+                        $output .= "<a title='".__('Disapprove')."' class='".($checkDocumentValue == "off" ? "inline-button text-red-600" : "inline-button text-gray-600")."'  href='#' id='unappr_btn_".$attachmentName."' onclick=\"changeApprove('".$attachmentName."',false)\">";
+                        $output .= icon('solid', "reject", 'size-6 sm:size-5');
+                        $output .= '</a>';
+                    }
 
                     if((int)reset($_SESSION)["gibbonRoleIDPrimary"] === 1 ){
                         $output .= '<input type="checkbox" value="" name="appr_'.$attachmentName.'" id="appr_'.$attachmentName.'" checked class="hidden">';
@@ -285,7 +283,7 @@ class FileUpload extends Input
                             $output .=  "<a title='".__('Delete')."' class='inline-button text-gray-600' href='".$this->absoluteURL.$this->deleteAction."' onclick='return confirm(\"".__('Are you sure you want to delete this record?').' '.__('Unsaved changes will be lost.')."\")'>";
                             $output .= icon('solid', 'delete', 'size-6 sm:size-5');
                             $output .= '</a>';
-                        } else {
+                        } elseif (isset($currentDocument['approvalStatus']) && $currentDocument['approvalStatus'] !== "approved") {
                             $output .= "<div title='".__('Delete')."' class='inline-button text-gray-600' onclick='if(confirm(\"".__('Are you sure you want to delete this record?').' '.__('Changes will be saved when you submit this form.')."\")) { $(\"#".$attachmentNameEscaped."\").val(\"\"); $(\"#".$idEscaped."\").show(); $(\"#".$idEscaped." + .max-upload\").show(); $(\"#".$idEscaped."\").prop(\"disabled\", false); $(this).parent().detach().remove(); };'>";
                             $output .= icon('solid', 'delete', 'size-6 sm:size-5');
                             $output .= '</div>';

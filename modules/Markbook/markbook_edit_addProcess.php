@@ -19,9 +19,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 use Gibbon\Domain\System\SettingGateway;
 use Gibbon\Services\Format;
 use Gibbon\Data\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 include '../../gibbon.php';
 
@@ -188,12 +191,156 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_add
             $URL .= '&return=error1';
             header("Location: {$URL}");
         } else {
+
+            //Check markbook file
+            $attachmentMrkb = null;
+            if (!empty($_FILES['studentScoresFile']['tmp_name'])) {
+                $fileUploader = new Gibbon\FileUploader($pdo, $session);
+                $attachmentMrkb = $fileUploader->uploadFromPost($_FILES['studentScoresFile'], $name);
+            }
+
+
+
             //Write to database
             try {
-                $data = array('gibbonUnitID' => $gibbonUnitID, 'gibbonPlannerEntryID' => $gibbonPlannerEntryID, 'gibbonCourseClassID' => $gibbonCourseClassID, 'name' => $name, 'description' => $description, 'columnColor' => $columnColor, 'type' => $type, 'date' => $date, 'sequenceNumber' => $sequenceNumber, 'attainment' => $attainment, 'gibbonScaleIDAttainment' => $gibbonScaleIDAttainment, 'attainmentWeighting' => $attainmentWeighting, 'attainmentRaw' => $attainmentRaw, 'attainmentRawMax' => $attainmentRawMax, 'effort' => $effort, 'gibbonScaleIDEffort' => $gibbonScaleIDEffort, 'gibbonRubricIDAttainment' => $gibbonRubricIDAttainment, 'gibbonRubricIDEffort' => $gibbonRubricIDEffort, 'comment' => $comment, 'uploadedResponse' => $uploadedResponse, 'completeDate' => $completeDate, 'complete' => $complete, 'viewableStudents' => $viewableStudents, 'viewableParents' => $viewableParents, 'attachment' => $attachment, 'gibbonPersonIDCreator' => $gibbonPersonIDCreator, 'gibbonPersonIDLastEdit' => $gibbonPersonIDLastEdit, 'gibbonSchoolYearTermID' => $gibbonSchoolYearTermID);
-                $sql = 'INSERT INTO gibbonMarkbookColumn SET gibbonUnitID=:gibbonUnitID, gibbonPlannerEntryID=:gibbonPlannerEntryID, gibbonCourseClassID=:gibbonCourseClassID, name=:name, description=:description, columnColor=:columnColor, type=:type, date=:date, sequenceNumber=:sequenceNumber, attainment=:attainment, gibbonScaleIDAttainment=:gibbonScaleIDAttainment, attainmentWeighting=:attainmentWeighting, attainmentRaw=:attainmentRaw, attainmentRawMax=:attainmentRawMax, effort=:effort, gibbonScaleIDEffort=:gibbonScaleIDEffort, gibbonRubricIDAttainment=:gibbonRubricIDAttainment, gibbonRubricIDEffort=:gibbonRubricIDEffort, comment=:comment, uploadedResponse=:uploadedResponse, completeDate=:completeDate, complete=:complete, viewableStudents=:viewableStudents, viewableParents=:viewableParents, attachment=:attachment, gibbonPersonIDCreator=:gibbonPersonIDCreator, gibbonPersonIDLastEdit=:gibbonPersonIDLastEdit, gibbonSchoolYearTermID=:gibbonSchoolYearTermID';
+                $data = array(
+                            'gibbonUnitID' => $gibbonUnitID,
+                            'gibbonPlannerEntryID' => $gibbonPlannerEntryID,
+                            'gibbonCourseClassID' => $gibbonCourseClassID,
+                            'name' => $name,
+                            'description' => $description,
+                            'columnColor' => $columnColor,
+                            'type' => $type,
+                            'date' => $date,
+                            'sequenceNumber' => $sequenceNumber,
+                            'attainment' => $attainment,
+                            'gibbonScaleIDAttainment' => $gibbonScaleIDAttainment,
+                            'attainmentWeighting' => $attainmentWeighting,
+                            'attainmentRaw' => $attainmentRaw,
+                            'attainmentRawMax' => $attainmentRawMax,
+                            'effort' => $effort,
+                            'gibbonScaleIDEffort' => $gibbonScaleIDEffort,
+                            'gibbonRubricIDAttainment' => $gibbonRubricIDAttainment,
+                            'gibbonRubricIDEffort' => $gibbonRubricIDEffort,
+                            'comment' => $comment,
+                            'uploadedResponse' => $uploadedResponse,
+                            'completeDate' => $completeDate,
+                            'complete' => $complete,
+                            'viewableStudents' => $viewableStudents,
+                            'viewableParents' => $viewableParents,
+                            'attachment' => $attachment,
+                            'studentsScoreFile' => $attachmentMrkb,
+                            'gibbonPersonIDCreator' => $gibbonPersonIDCreator,
+                            'gibbonPersonIDLastEdit' => $gibbonPersonIDLastEdit,
+                            'gibbonSchoolYearTermID' => $gibbonSchoolYearTermID
+                        );
+
+
+                $sql = 'INSERT INTO gibbonMarkbookColumn SET gibbonUnitID=:gibbonUnitID, gibbonPlannerEntryID=:gibbonPlannerEntryID, gibbonCourseClassID=:gibbonCourseClassID, name=:name, description=:description, columnColor=:columnColor, type=:type, date=:date, sequenceNumber=:sequenceNumber, attainment=:attainment, gibbonScaleIDAttainment=:gibbonScaleIDAttainment, attainmentWeighting=:attainmentWeighting, attainmentRaw=:attainmentRaw, attainmentRawMax=:attainmentRawMax, effort=:effort, gibbonScaleIDEffort=:gibbonScaleIDEffort, gibbonRubricIDAttainment=:gibbonRubricIDAttainment, gibbonRubricIDEffort=:gibbonRubricIDEffort, comment=:comment, uploadedResponse=:uploadedResponse, completeDate=:completeDate, complete=:complete, viewableStudents=:viewableStudents, viewableParents=:viewableParents, attachment=:attachment, studentsScoreFile=:studentsScoreFile, gibbonPersonIDCreator=:gibbonPersonIDCreator, gibbonPersonIDLastEdit=:gibbonPersonIDLastEdit, gibbonSchoolYearTermID=:gibbonSchoolYearTermID';
                 $result = $connection2->prepare($sql);
                 $result->execute($data);
+                $lastMarkbookId = $connection2->lastInsertId();
+
+                //Pre uploaded gibbonMarkbookEntry
+                if (!is_null($attachmentMrkb)) {
+                    $attachmentMrkb = '/' . ltrim($attachmentMrkb, '/');
+                    $attachmentMrkb = $_SERVER['DOCUMENT_ROOT'] . $attachmentMrkb;
+
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mime = finfo_file($finfo, $attachmentMrkb);
+                    $validMimes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+
+                    if (in_array($mime, $validMimes)) {
+                        $spreadsheet = IOFactory::load($attachmentMrkb);
+                        $data = $spreadsheet->getActiveSheet()->toArray();
+
+                        // Check headers
+                        if (!in_array('username', $data[0]) || !in_array('effort', $data[0])) {
+                            $URL .= '&return=error11_1';
+                            header("Location: {$URL}");
+                            exit();
+                        }
+    
+                        $studentsGradesIds = array_column(array_slice($data, 1), 0);
+                        $efforStudtents = array_column(array_slice($data, 1), 1);
+                        if(!is_array($studentsGradesIds)){
+                            $URL .= '&return=error3';
+                            header("Location: {$URL}");
+                            exit();
+                        }
+
+                        //Get the users ids from usernames column
+                        $studentsUsernameLst = array_map(fn($id) => "'$id'", $studentsGradesIds);                        
+                        $sqlStudents = "SELECT gibbonPersonID FROM gibbonPerson WHERE username IN (" . implode(",", $studentsUsernameLst) . ")";
+                        $studentsIDS = $connection2->prepare($sqlStudents);
+                        $studentsIDS->execute();
+                        $results = $studentsIDS->fetchAll(PDO::FETCH_ASSOC);
+                        $studentsGradesIds = array_column($results, 'gibbonPersonID');
+
+                        $unions = implode(' UNION SELECT ', array_fill(0, count($studentsGradesIds), '?'));
+                        $sql = "SELECT id FROM (SELECT $unions) AS ids(id)
+                                WHERE id NOT IN (
+                                    SELECT gibbonPersonID
+                                    FROM gibbonCourseClassPerson
+                                    WHERE gibbonCourseClassID = ?
+                                )";
+
+                        $params = [...$studentsGradesIds, $gibbonCourseClassID];
+                        $stmt = $connection2->prepare($sql);
+                        $stmt->execute($params);
+
+                        //Check uniexistent students
+                        if($stmt->rowCount() > 0){
+                            $URL .= '&return=error11_2';
+                            header("Location: {$URL}");
+                            exit();
+                        }
+
+                        //Insert markbook by student
+                        $sql = 'INSERT INTO gibbonMarkbookEntry SET
+                            gibbonMarkbookColumnID = :gibbonMarkbookColumnID,
+                            gibbonPersonIDStudent = :gibbonPersonIDStudent,
+                            modifiedAssessment = :modifiedAssessment,
+                            attainmentValue = :attainmentValue,
+                            attainmentValueRaw = :attainmentValueRaw,
+                            attainmentDescriptor = :attainmentDescriptor,
+                            attainmentConcern = :attainmentConcern,
+                            effortValue = :effortValue,
+                            effortDescriptor = :effortDescriptor,
+                            effortConcern = :effortConcern,
+                            response = :response,
+                            gibbonPersonIDLastEdit = :gibbonPersonIDLastEdit';
+
+                        $stmt = $connection2->prepare($sql);
+                        foreach ($studentsGradesIds as $i => $studentID) {
+                            $stmt->execute([
+                                'gibbonMarkbookColumnID' => $lastMarkbookId,
+                                'gibbonPersonIDStudent' => $studentID,
+                                'modifiedAssessment' => null,
+                                'attainmentValue' => '',
+                                'attainmentValueRaw' => '',
+                                'attainmentDescriptor' => '',
+                                'attainmentConcern' => 'N',
+                                'effortValue' => $efforStudtents[$i],
+                                'effortDescriptor' => '',
+                                'effortConcern' => 'N',
+                                'response' => null,
+                                'gibbonPersonIDLastEdit' => 1
+                            ]);
+                        }
+                    }
+                    else{
+                        $URL .= '&return=error11_3';
+                        header("Location: {$URL}");
+                        exit();
+                    }
+                }
+
+                if (!empty($_FILES['studentScoresFile']['tmp_name'])) {
+
+                }
+
+
             } catch (PDOException $e) {
                 $URL .= '&return=error2';
                 header("Location: {$URL}");

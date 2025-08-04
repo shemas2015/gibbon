@@ -163,6 +163,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Markbook/markbook_edit_add
                     $row->addLabel('file', __('Attachment'));
                     $row->addFileUpload('file');
 
+
+                //Student Scores File
+                $row = $form->addRow();
+                    $row->addLabel('file', __('Student Scores File'));
+                    $row->addFileUpload('studentScoresFile')
+                        ->accepts('.xls,xlsx');
+
                 // DATE
                 if ($enableGroupByTerm == 'Y') {
                     $data = array('gibbonSchoolYearID' => $session->get('gibbonSchoolYearID'), 'date' => $date);

@@ -57,6 +57,11 @@ class ReturnMessage
             'error9' => __('Your request failed because your session authentication has expired. Please log out and log in again.'),
             'error10' => __('Your request failed because this form has already been submitted. Please avoid using the back button on your browser.'),
 
+            #Markbook createion
+            'error11_1' => __('Column username or effort do not exist.'),
+            'error11_2' => __('Some of the students do not belong in this class'),
+            'error11_3' => __('Invalid extension markbook format'),
+
             //Warnings
             'warning0' => __('Your optional extra data failed to save.'),
             'warning1' => __('Your request was successful, but some data was not properly saved.'),
