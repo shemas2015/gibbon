@@ -80,6 +80,9 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
             $return .= "<span style='font-style: italic; font-size: 85%'>".$session->get('currency').'</span>';
         }
         $return .= '</th>';
+        $return .= "<th style='width: 150px'>";
+        $return .= __('Payment Proof');
+        $return .= '</th>';
         $return .= '<th>';
         $return .= __('Type');
         $return .= '</th>';
@@ -122,6 +125,9 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
                 $return .= number_format($row['amount'], 2, '.', ',');
                 $return .= '</td>';
                 $return .= '<td>';
+                $return .= $row["payment_proof"] ? "<a href='".$row["payment_proof"]."' target='_blank'>Download</a>" : "";
+                $return .= '</td>';
+                $return .= '<td>';
                 $return .= __($row['type']);
                 $return .= '</td>';
                 $return .= '<td>';
@@ -138,7 +144,7 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
             }
         }
         $return .= "<tr style='height: 35px' class='current'>";
-        $return .= "<td colspan=5 style='text-align: right'>";
+        $return .= "<td colspan=6 style='text-align: right'>";
         $return .= '<b>'.__('Total Payment On This Invoice:').'</b>';
         $return .= '</td>';
         $return .= '<td>';
@@ -151,7 +157,7 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
 
         if (!empty($feeTotal) && $paymentTotal < $feeTotal ) {
             $return .= "<tr style='height: 35px' class='dull'>";
-            $return .= "<td colspan=5 style='text-align: right'>";
+            $return .= "<td colspan=6 style='text-align: right'>";
             $return .= '<b>'.__('Outstanding Amount').':</b>';
             $return .= '</td>';
             $return .= '<td>';
@@ -170,7 +176,7 @@ function getPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $gib
 }
 
 //Create an entry in the payment log table, recording the details of a particular payment
-function setPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $type, $status, $amount, $gateway = null, $onlineTransactionStatus = null, $paymentToken = null, $paymentPayerID = null, $paymentTransactionID = null, $paymentReceiptID = null, $timestamp = null)
+function setPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $type, $status, $amount, $gateway = null, $onlineTransactionStatus = null, $paymentToken = null, $paymentPayerID = null, $paymentTransactionID = null, $paymentReceiptID = null, $timestamp = null , $paymentProff = null)
 {
     global $session;
 
@@ -182,8 +188,8 @@ function setPaymentLog($connection2, $guid, $foreignTable, $foreignTableID, $typ
     $gibbonPersonID = $session->has('gibbonPersonID') ? $session->get('gibbonPersonID') : null;
 
     try {
-        $data = array('foreignTable' => $foreignTable, 'foreignTableID' => $foreignTableID, 'gibbonPersonID' => $gibbonPersonID, 'type' => $type, 'status' => $status, 'amount' => $amount, 'gateway' => $gateway, 'onlineTransactionStatus' => $onlineTransactionStatus, 'paymentToken' => $paymentToken, 'paymentPayerID' => $paymentPayerID, 'paymentTransactionID' => $paymentTransactionID, 'paymentReceiptID' => $paymentReceiptID, 'timestamp' => $timestamp);
-        $sql = 'INSERT INTO gibbonPayment SET foreignTable=:foreignTable, foreignTableID=:foreignTableID, gibbonPersonID=:gibbonPersonID, type=:type, status=:status, amount=:amount, gateway=:gateway, onlineTransactionStatus=:onlineTransactionStatus, paymentToken=:paymentToken, paymentPayerID=:paymentPayerID, paymentTransactionID=:paymentTransactionID, paymentReceiptID=:paymentReceiptID, timestamp=:timestamp';
+        $data = array('foreignTable' => $foreignTable, 'foreignTableID' => $foreignTableID, 'gibbonPersonID' => $gibbonPersonID, 'type' => $type, 'status' => $status, 'amount' => $amount, 'gateway' => $gateway, 'onlineTransactionStatus' => $onlineTransactionStatus, 'paymentToken' => $paymentToken, 'paymentPayerID' => $paymentPayerID, 'paymentTransactionID' => $paymentTransactionID, 'paymentReceiptID' => $paymentReceiptID, 'timestamp' => $timestamp , 'payment_proff' => $paymentProff);
+        $sql = 'INSERT INTO gibbonPayment SET foreignTable=:foreignTable, foreignTableID=:foreignTableID, gibbonPersonID=:gibbonPersonID, type=:type, status=:status, amount=:amount, gateway=:gateway, onlineTransactionStatus=:onlineTransactionStatus, paymentToken=:paymentToken, paymentPayerID=:paymentPayerID, paymentTransactionID=:paymentTransactionID, paymentReceiptID=:paymentReceiptID, timestamp=:timestamp,payment_proof=:payment_proff';
         $result = $connection2->prepare($sql);
         $result->execute($data);
     } catch (PDOException $e) {

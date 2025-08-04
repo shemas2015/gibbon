@@ -152,6 +152,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Finance/invoices_manage_ed
                     $row->addLabel('paidAmount', __('Amount Paid'))->description(__('Amount in current payment.'));
                     $row->addCurrency('paidAmount')->maxLength(14)->required()->setValue(number_format($remainingFee, 2, '.', ''));
 
+                $row = $form->addRow();
+                    $row->addLabel('paymentProof', __('Payment Proof'));
+                    $row->addFileUpload('payment_proof')
+                        ->accepts('jpg,jpeg,png,gif,pdf')
+                        ->required();
+
                 unset($values['paidDate']);
                 unset($values['paidAmount']);
             }

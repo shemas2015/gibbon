@@ -213,7 +213,11 @@ if ($gibbonFinanceInvoiceID == '' or $gibbonSchoolYearID == '') { echo 'Fatal er
                     } elseif ($_POST['status'] == 'Paid - Complete') {
                         $statusLog = 'Final';
                     }
-                    $logFail = setPaymentLog($connection2, $guid, 'gibbonFinanceInvoice', $gibbonFinanceInvoiceID, $paymentType, $statusLog, $paidAmountLog, null, null, null, null, $paymentTransactionID, null, $paidDate);
+
+                    $fileUploader = new Gibbon\FileUploader($pdo, $session);
+                    $attachmentProof = $fileUploader->uploadFromPost($_FILES['payment_proof'], $name);
+
+                    $logFail = setPaymentLog($connection2, $guid, 'gibbonFinanceInvoice', $gibbonFinanceInvoiceID, $paymentType, $statusLog, $paidAmountLog, null, null, null, null, $paymentTransactionID, null, $paidDate,$attachmentProof);
                     if ($logFail == false) {
                         $partialFail = true;
                     }
