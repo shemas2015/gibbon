@@ -45,7 +45,7 @@ collapsed drop-down list in 'mini' view-mode.
             {% endif %}
         {% endfor %}
     {% elseif sidebar and sidebarContents %}
-        <div class="{{ sidebarClass }} md:column-2 lg:column-1 {{ page.breadcrumbs ? 'pt-4 lg:pt-0' }} pb-6 lg:pb-8">
+        <div id="js-login-form-container" class="{{ sidebarClass }} login-form-sidebar md:column-2 lg:column-1 {{ page.breadcrumbs ? 'pt-4 lg:pt-0' }} pb-6 lg:pb-8">
             {{ sidebarContents|raw }}
         </div>
     {% endif %}

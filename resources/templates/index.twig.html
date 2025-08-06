@@ -22,181 +22,463 @@ TODO: add template variable details.
         <a id="top"></a>
         {% set sidebarPos = isLoggedIn ? 'left' : 'right' %}
 
-        <!-- <div class="login-modal fixed flex justify-center items-center w-full h-full bg-white  z-10" style="background-color: #F5F7FA;">
-            <div class="login-modal-content w-full rounded-md shadow-md bg-white p-4" style="max-width: 530px;">
-                <p>Welcome, please enter your email and password to continue</p>
-                {{ include('navigation.twig.html') }}                 
 
-            </div>
-        </div> -->
-        <!-- <div class="px-4 sm:px-6 lg:px-12 pb-24"> -->
-        <!-- Main Content div -->
-        <div class="">
-            {% block header %}
-                <div id="header" class="relative flex justify-between items-center">
+        {% if isLoggedIn %}
+            <!-- <div class="login-modal fixed flex justify-center items-center w-full h-full bg-white  z-10" style="background-color: #F5F7FA;">
+                <div class="login-modal-content w-full rounded-md shadow-md bg-white p-4" style="max-width: 530px;">
+                    <p>Welcome, please enter your email and password to continue</p>
+                    {{ include('navigation.twig.html') }}                 
 
-                    <a id="header-logo" class="block pl-4 pb-2 max-w-xs sm:max-w-full leading-none" href="{{ absoluteURL }}">
-                        <img class="p-2 block max-w-full {{ isLoggedIn ? 'h-12' : 'h-20 mt-4 mb-4' }}" alt="{{ organisationName }} Logo" src="{{ absoluteURL }}/{{ organisationLogo|default("themes/Default/img/logo.png")|trim('/', 'left') }}" style="max-height:100px;" />
-                    </a>
-
-
-                     <!-- <div class=" notificationTray flex-grow relative"> -->
-                            <!-- <div class="flex flex-row-reverse items-center"> -->
-
-
-                            <!-- </div>
-                    </div> -->
-
-                    <!-- Notifications Avatar and Name-->
-                    <div class="flex-grow flex items-center justify-end text-right text-sm text-{{ themeColour }}-200">
-                        {% if isLoggedIn and currentUser %}
-
-                            <div id="finderTray" class="hidden md:block mr-16 w-auto sm:w-full max-w-sm">
-                                {{ include('finder.twig.html') }}
-                            </div>
-
-                            <!-- Notifications and Messages -->
-                            <div id="notifications-container">
-                                {{ include('tray.twig.html') }}
-                            </div>
-
-                            <!-- Image and Menu -->
-                            <div class="relative px-4 py-4 {{ rightToLeft ? '-ml-3' : '-mr-3' }}" x-data="{menuOpen: false}" @mouseleave="menuOpen = false" @click.outside="menuOpen = false">
-                                <a @mouseenter="menuOpen = true" @click="menuOpen = !menuOpen" :class="{'ring-opacity-75': menuOpen, 'ring-opacity-25': !menuOpen}" hx-boost="true" hx-target="#content-wrap" hx-select="#content-wrap" hx-swap="outerHTML show:no-scroll swap:0s" href="{{ currentUser.url ?? '#' }}" class="{{ currentUser.image_240 ? 'flex-none' : 'flex items-center justify-center' }} block overflow-hidden w-10 h-10 rounded-full bg-gray-200 ring-white ring-2 cursor-pointer">
-                                {% if currentUser.image_240 %}
-                                    <img class="w-full -mt-1" src="{{ absoluteURL }}/{{ currentUser.image_240 }}" />
-                                {% else %}
-                                    <img class="w-full" src="{{ absoluteURL }}/themes/{{ gibbonThemeName }}/img/anonymous_75.jpg" />
-                                {% endif %}
-                                </a>
-
-                                <ul x-cloak x-show="menuOpen" x-transition:enter.duration.250ms x-transition:leave.duration.100ms class="list-none m-0 bg-black bg-opacity-75 backdrop-blur-lg backdrop-contrast-125 backdrop-saturate-150 absolute rounded-md w-48 mt-1 p-1 sm:p-1.5 z-50 cursor-pointer {{ rightToLeft ? 'left-0' : 'right-0' }}">
-                                    {% for link in minorLinks|reverse %}
-                                    <li class="hover:bg-{{ themeColour }}-700 rounded">
-                                        <a @click="menuOpen = false" href="{{ link.url }}" class="flex justify-between items-center text-sm text-white focus:text-{{ themeColour }}-200 no-underline px-1 py-2 md:py-1 leading-normal {{ rightToLeft ? 'text-right' : 'text-left' }}" target="{{ link.target }}" {{ link.target == '_blank' ? 'rel="noopener noreferrer"' : '' }}>
-                                            {{- link.name|raw -}}
-
-                                            {% if link.target == '_blank' %}
-                                                {{ icon('basic', 'external-link', 'size-4 text-white text-opacity-50 pointer-events-none') }}
-                                            {% endif %}
-                                        </a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-
-                            </div>
-
-                            <a href="{{ currentUser.url ?? './index.php?q=/preferences.php' }}" class="hidden sm:block text-{{ themeColour }}-200 hover:text-white">
-                                {{ currentUser.name }}
-                            </a>
-
-                        {% else %}
-                            {% for link in minorLinks %}
-                                {{ link.prepend }}&nbsp;
-                                <a href="{{ link.url }}" class="text-white {{ loop.count > 3 ? 'hidden sm:block' }}" target="{{ link.target }}" {{ link.target == '_blank' ? 'rel="noopener noreferrer"' : '' }}>
-                                    {{- link.name|raw -}}
-                                </a>
-                                {{ link.append }}
-                            {% endfor %}
-                        {% endif %}
-
-                        {% if currentUser.houseName and currentUser.houseLogo %}
-                            <img class="ml-3 -mt-2 w-12 h-12" title="{{ currentUser.houseName }}" style="vertical-align: -75%;" src="{{ absoluteURL }}/{{ currentUser.houseLogo }}"/>
-                        {% endif %}
-                    </div>
-
-
-                    
                 </div>
+            </div> -->
+            <!-- <div class="px-4 sm:px-6 lg:px-12 pb-24"> -->
+            <!-- Main Content div -->
+            <div class="">
+                {% block header %}
+                    <div id="header" class="relative flex justify-between items-center">
 
-                {% if isLoggedIn %}
-                    <div class="menu-mobile block md:hidden p-4 flex justify-center items-center" style="background: #f5f7fa;">
-                        <div id="finderTray" class=""">
-                            {{ include('finder.twig.html') }}
-                        </div>             
-                    </div>
-                    
-
-
-                    <nav id="header-menu" class=" justify-between" style="background-color: #777777 !important;">
-                        {{ include('menu.twig.html') }}
-                    </nav>
-                {% endif %}
-
-            {% endblock %}
-        </div>
-        <!-- <div id="wrapOuter" class="flex-1 pt-24 bg-transparent-100"> -->
-        <div id="wrapOuter" class="mt-4 flex-1 bg-transparent-100">
-            <!-- <div id="wrap" class="px-0 sm:px-6 lg:px-16 -mt-48"> -->
-                <div id="wrap" class="px-0">
-                {% block beforePage %}
-                {% endblock beforePage %}
-
-                <div class="block lg:hidden mx-4 sm:mx-0 mb-4">
-                {% for type, alerts in page.alerts %}
-                    {% for text in alerts %}
-                        <div class="{{ type }}">{{ text|raw }}</div>
-                    {% endfor %}
-                {% endfor %}
-                </div>
-
-                <div id="content-wrap" class="relative w-full min-h-1/2 flex content-start {{ sidebar ? 'gap-4 lg:gap-6 flex flex-col' : 'flex-col' }} {{ sidebarPos == 'left' ? 'lg:flex-row' : 'lg:flex-row-reverse' }} {{ not isHomePage and not isLoggedIn ? 'flex-col-reverse'}} clearfix">
-
-                    {% if sidebar and (sidebarContents or menuModule) %}
-                        <div id="sidebar" class="w-full lg:w-sidebar lg:min-w-72 lg:max-w-xs ">
-                            {% block sidebar %}
-                            {{ include('navigation.twig.html') }}
-                            {% endblock sidebar %}
+                        <div class="mobile-sidebar-btn block md:hidden" id="mobile-sidebar-btn">
+                            <button class="p-2 cursor-pointer">
+                                {{ icon('outline', 'burguer-menu')}}
+                            </button>
                         </div>
 
-                    {% else %}
-                        {{ include('navigation.twig.html') }}
+                        <a id="header-logo" class="block pl-4 pb-2 max-w-xs sm:max-w-full leading-none" href="{{ absoluteURL }}">
+                            <img class="p-2 block max-w-full {{ isLoggedIn ? 'h-12' : 'h-20 mt-4 mb-4' }}" alt="{{ organisationName }} Logo" src="{{ absoluteURL }}/{{ organisationLogo|default("themes/Default/img/logo.png")|trim('/', 'left') }}" style="max-height:100px;" />
+                        </a>
+
+
+                        <!-- <div class=" notificationTray flex-grow relative"> -->
+                                <!-- <div class="flex flex-row-reverse items-center"> -->
+
+
+                                <!-- </div>
+                        </div> -->
+
+                        <!-- Notifications Avatar and Name-->
+                        <div class="flex-grow flex items-center justify-end text-right text-sm text-{{ themeColour }}-200">
+                            {% if isLoggedIn and currentUser %}
+
+                                <div id="finderTray" class="hidden md:block mr-16 w-auto sm:w-full max-w-sm">
+                                    {{ include('finder.twig.html') }}
+                                </div>
+
+                                <!-- Notifications and Messages -->
+                                <div id="notifications-container">
+                                    {{ include('tray.twig.html') }}
+                                </div>
+
+                                <!-- Image and Menu -->
+                                <div class="relative px-4 py-4 {{ rightToLeft ? '-ml-3' : '-mr-3' }}" x-data="{menuOpen: false}" @mouseleave="menuOpen = false" @click.outside="menuOpen = false">
+                                    <a @mouseenter="menuOpen = true" @click="menuOpen = !menuOpen" :class="{'ring-opacity-75': menuOpen, 'ring-opacity-25': !menuOpen}" hx-boost="true" hx-target="#content-wrap" hx-select="#content-wrap" hx-swap="outerHTML show:no-scroll swap:0s" href="{{ currentUser.url ?? '#' }}" class="{{ currentUser.image_240 ? 'flex-none' : 'flex items-center justify-center' }} block overflow-hidden w-10 h-10 rounded-full bg-gray-200 ring-white ring-2 cursor-pointer">
+                                    {% if currentUser.image_240 %}
+                                        <img class="w-full -mt-1" src="{{ absoluteURL }}/{{ currentUser.image_240 }}" />
+                                    {% else %}
+                                        <img class="w-full" src="{{ absoluteURL }}/themes/{{ gibbonThemeName }}/img/anonymous_75.jpg" />
+                                    {% endif %}
+                                    </a>
+
+                                    <ul x-cloak x-show="menuOpen" x-transition:enter.duration.250ms x-transition:leave.duration.100ms class="list-none m-0 bg-black bg-opacity-75 backdrop-blur-lg backdrop-contrast-125 backdrop-saturate-150 absolute rounded-md w-48 mt-1 p-1 sm:p-1.5 z-50 cursor-pointer {{ rightToLeft ? 'left-0' : 'right-0' }}">
+                                        {% for link in minorLinks|reverse %}
+                                        <li class="hover:bg-{{ themeColour }}-700 rounded">
+                                            <a @click="menuOpen = false" href="{{ link.url }}" class="flex justify-between items-center text-sm text-white focus:text-{{ themeColour }}-200 no-underline px-1 py-2 md:py-1 leading-normal {{ rightToLeft ? 'text-right' : 'text-left' }}" target="{{ link.target }}" {{ link.target == '_blank' ? 'rel="noopener noreferrer"' : '' }}>
+                                                {{- link.name|raw -}}
+
+                                                {% if link.target == '_blank' %}
+                                                    {{ icon('basic', 'external-link', 'size-4 text-white text-opacity-50 pointer-events-none') }}
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+
+                                </div>
+
+                                <a href="{{ currentUser.url ?? './index.php?q=/preferences.php' }}" class="hidden sm:block text-{{ themeColour }}-200 hover:text-white">
+                                    {{ currentUser.name }}
+                                </a>
+
+                            {% else %}
+                                {% for link in minorLinks %}
+                                    {{ link.prepend }}&nbsp;
+                                    <a href="{{ link.url }}" class="text-white {{ loop.count > 3 ? 'hidden sm:block' }}" target="{{ link.target }}" {{ link.target == '_blank' ? 'rel="noopener noreferrer"' : '' }}>
+                                        {{- link.name|raw -}}
+                                    </a>
+                                    {{ link.append }}
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if currentUser.houseName and currentUser.houseLogo %}
+                                <img class="ml-3 -mt-2 w-12 h-12" title="{{ currentUser.houseName }}" style="vertical-align: -75%;" src="{{ absoluteURL }}/{{ currentUser.houseLogo }}"/>
+                            {% endif %}
+                        </div>
+
+
+                        
+                    </div>
+
+                    {% if isLoggedIn %}
+                        <div class="menu-mobile block md:hidden p-4 flex justify-center items-center" style="background: #f5f7fa;">
+                            <div id="finderTray" class=""">
+                                {{ include('finder.twig.html') }}
+                            </div>             
+                        </div>
+                        
+
+                        {% if deleted %}
+                        <nav id="header-menu" class=" justify-between" style="background-color: #777777 !important;">
+                            {{ include('menu.twig.html') }}
+                        </nav>
+                        {% endif %}
+
                     {% endif %}
 
-                    <div id="content" class="{{ contentClass ? contentClass : 'max-w-full' }} {{ isHomePage and isLoggedIn ? 'bg-gray-100' : 'bg-white pb-6'}} w-full shadow  sm:rounded lg:flex-1 px-4 sm:px-8">
-
-                        <div id="content-inner" class="h-full">
-
-                            {% block page %}
-
-                                {{ include('page.twig.html') }}
-
-                                {{ content|join("\n")|raw }}
-                                
-                            {% endblock %}
-                        </div>
-                    </div>
-
-                </div>
-
-                {% if isLoggedIn %}
-                    <div class="text-right mt-2 text-xs pr-1">
-                        <a class='text-{{ themeColour }}-800' href='#top'>{{ __('Return to top') }}</a>
-                    </div>
-                {% endif %}
-
-                {% block afterPage %}
-                {% endblock afterPage %}
+                {% endblock %}
             </div>
 
-            
+            <!-- New Menu -->
 
-            {% block footer %}
-                <div class="relative text-sm text-gray-700 px-6 lg:px-12 mt-4 pt-2 pb-6 leading-normal border-t border-gray-300 {{ rightToLeft ? 'text-right' : 'text-left' }}">
-                    {{ include('footer.twig.html') }}
+            {% if isLoggedIn %}
+            <div id="sidebar-container" class="sidebar-menu sidebar-menu--hide bg-white shadow-md fixed left-0 z-50 h-full" style="width:228px; top:0px;">
+                <div class="sidebar-menu-content py-8 px-4">
+                    <!-- Back Button -->
+                    <button class="logo mb-8" id="close-sidebar-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                            <g clip-path="url(#clip0_609_7411)">
+                                <path d="M0.732813 9.26834L3.15719 11.6927C3.27506 11.8066 3.43294 11.8696 3.59681 11.8681C3.76069 11.8667 3.91744 11.801 4.03332 11.6851C4.1492 11.5692 4.21494 11.4125 4.21636 11.2486C4.21778 11.0847 4.15479 10.9268 4.04094 10.809L1.61656 8.38459C1.54453 8.31114 1.48158 8.2293 1.42906 8.14084C1.43844 8.14084 1.44594 8.14584 1.45531 8.14584L11.2578 8.12584C11.4236 8.12584 11.5825 8.06 11.6998 7.94279C11.817 7.82558 11.8828 7.6666 11.8828 7.50084C11.8828 7.33508 11.817 7.17611 11.6998 7.0589C11.5825 6.94169 11.4236 6.87584 11.2578 6.87584L1.45906 6.89584C1.44156 6.89584 1.42719 6.90459 1.41031 6.90584C1.46575 6.80012 1.53605 6.70288 1.61906 6.61709L4.04344 4.19272C4.10313 4.13507 4.15075 4.0661 4.1835 3.98985C4.21626 3.91359 4.2335 3.83158 4.23422 3.74859C4.23494 3.66561 4.21913 3.58331 4.1877 3.5065C4.15628 3.42969 4.10987 3.35991 4.05118 3.30122C3.9925 3.24254 3.92272 3.19613 3.84591 3.16471C3.7691 3.13328 3.6868 3.11747 3.60381 3.11819C3.52083 3.11891 3.43881 3.13615 3.36256 3.16891C3.28631 3.20166 3.21734 3.24927 3.15969 3.30897L0.735313 5.73334C0.266635 6.20216 0.00334784 6.83793 0.00334778 7.50084C0.00334772 8.16375 0.266635 8.79952 0.735313 9.26834L0.732813 9.26834Z" fill="#0B1014"/>
+                                <path d="M10.625 1.25L11.875 1.25C12.3723 1.25 12.8492 1.44754 13.2008 1.79917C13.5525 2.15081 13.75 2.62772 13.75 3.125L13.75 11.875C13.75 12.3723 13.5525 12.8492 13.2008 13.2008C12.8492 13.5525 12.3723 13.75 11.875 13.75L10.625 13.75C10.4592 13.75 10.3003 13.8158 10.1831 13.9331C10.0658 14.0503 10 14.2092 10 14.375C10 14.5408 10.0658 14.6997 10.1831 14.8169C10.3003 14.9342 10.4592 15 10.625 15L11.875 15C12.7035 14.999 13.4978 14.6694 14.0836 14.0836C14.6694 13.4978 14.999 12.7035 15 11.875L15 3.125C14.999 2.2965 14.6694 1.50222 14.0836 0.916387C13.4978 0.33055 12.7035 0.000992574 11.875 -2.73196e-07L10.625 -3.82475e-07C10.4592 -3.96966e-07 10.3003 0.065847 10.1831 0.183057C10.0658 0.300268 10 0.45924 10 0.625C10 0.79076 10.0658 0.949731 10.1831 1.06694C10.3003 1.18415 10.4592 1.25 10.625 1.25Z" fill="#0B1014"/>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_609_7411">
+                                    <rect width="15" height="15" fill="white" transform="translate(15 15) rotate(-180)"/>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </button>
 
-                    <img class="absolute top-0 -mt-1 hidden sm:block w-32 {{ rightToLeft ? 'left-0 sm:ml-0 md:ml-16' : 'right-0 sm:mr-0 md:mr-16' }}" alt="Logo text-xs" src="{{ absoluteURL }}/themes/{{ gibbonThemeName|default("Default") }}/img/gibbon-white.svg"/>
+                    <!-- Menu Items -->
+                    <ul class="items flex flex-col gap-y-8 ml-0 list-none" style="gap:2rem;"> 
+                        
+                            <li data-tooltip="Home" class="tooltip-target cursor-pointer flex items-center justify-between text-black" href="{{ absoluteURL }}/index.php">
+                                <a href="{{ absoluteURL }}/index.php">
+                                    <div class="left flex items-center">
+                                        <div class="icon relative top-0.5">
+                                            {{ icon('outline', 'house')}}
+                                        </div>
+                                        <div class="content pl-2 font-semibold text-black">
+                                            Home
+                                        </div>
+                                    </div>
+                                </a>
+                            
+                            </li>
+                        {% for categoryName, items in menuMain %}
+                            <li  class="nav-item group tooltip-target cursor-pointer" data-tooltip="{{ __(categoryName) }}">
+                                <div class="main-item flex items-center justify-between w-full">
+                                    <div class="left flex items-center">
+                                        <div class="icon relative top-0.5">
+                                        
+
+                                            {% if __(categoryName)|lower == 'admin' %}
+                                                <!-- Icon Assets -->
+                                            {{ icon('outline', 'settings')}}
+                                            {% endif %}
+
+                                            {% if __(categoryName)|lower == 'assess' %}
+                                            {{ icon('outline', 'paper')}}
+                                            {% endif %}
+
+                                            {% if __(categoryName)|lower == 'learn' %}
+                                                {{ icon('outline', 'lightbulb2')}}
+                                            {% endif %}                                    
+
+                                            {% if __(categoryName)|lower == 'people' %}
+                                                {{ icon('outline', 'diagram')}}
+                                            {% endif %}   
+                                            
+                                            {% if __(categoryName)|lower == 'other' %}
+                                                {{ icon('outline', 'grid')}}
+                                            {% endif %}                                       
+                                        </div>
+                                                                        
+                                        <!-- Label -->
+                                        <div class="content pl-2 font-semibold" >
+                                            {{ __(categoryName) }}
+                                        </div>
+                                    </div>
+
+                                    {% if items %}
+                                        <div class="right transform transition-transform duration-200 group-hover:rotate-180">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="6" viewBox="0 0 8 4" fill="none">
+                                                <path d="M4.2998 2.72449C4.24796 2.77676 4.18629 2.81824 4.11834 2.84655C4.05038 2.87486 3.9775 2.88944 3.90388 2.88944C3.83027 2.88944 3.75738 2.87486 3.68943 2.84655C3.62148 2.81824 3.5598 2.77676 3.50796 2.72449L0.953997 0.164948C0.902157 0.112682 0.840483 0.0711963 0.77253 0.042886C0.704577 0.0145757 0.631691 4.49225e-07 0.558076 4.52443e-07C0.484462 4.55661e-07 0.411576 0.0145757 0.343623 0.042886C0.27567 0.0711963 0.213995 0.112682 0.162156 0.164948C0.058296 0.269428 0 0.410761 0 0.55808C0 0.705399 0.058296 0.846732 0.162156 0.951212L2.7217 3.51075C3.03537 3.82403 3.46056 4 3.90388 4C4.3472 4 4.7724 3.82403 5.08607 3.51075L7.64561 0.951212C7.74863 0.847346 7.80671 0.707158 7.80732 0.560868C7.80775 0.487479 7.79368 0.414729 7.76593 0.346788C7.73818 0.278847 7.69729 0.217053 7.64561 0.164947C7.59377 0.112681 7.5321 0.071196 7.46414 0.0428857C7.39619 0.0145754 7.3233 1.56725e-07 7.24969 1.59943e-07C7.17607 1.63161e-07 7.10319 0.0145754 7.03524 0.0428857C6.96728 0.071196 6.90561 0.112681 6.85377 0.164947L4.2998 2.72449Z" fill="#1B2831"/>
+                                            </svg>                               
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="sub hidden group-hover:block md:group-hover:hidden pt-2">
+                                    <ul class="ml-5 list-none flex flex-col gap-2">
+                                        {% for item in items %}
+                                            <li>
+                                                <a class="text-black" style="font-size: 13px;" href="{{ item.url }}">
+                                                    {{ __(item.name, item.textDomain) }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+
+
                 </div>
-            {% endblock %}
+            </div>            
 
-        </div>
+            {% endif %}     
+            
+            
+        
+            <!-- <div id="wrapOuter" class="flex-1 pt-24 bg-transparent-100"> -->
+            <div id="wrapOuter" class="mt-4 flex-1 bg-transparent-100">  
+                <!-- <div id="wrap" class="px-0 sm:px-6 lg:px-16 -mt-48"> -->
+                    <div id="wrap" class="px-0">
+                    {% block beforePage %}
+                    {% endblock beforePage %}
 
-        {% block privacy %}
-        {{ include('privacy.twig.html') }}
-        {% endblock privacy %}
+                    <div class="block lg:hidden mx-4 sm:mx-0 mb-4">
+                    {% for type, alerts in page.alerts %}
+                        {% for text in alerts %}
+                            <div class="{{ type }}">{{ text|raw }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                    </div>
 
-        {% block foot %}
-        {{ include('foot.twig.html') }}
-        {% endblock foot %}
+                    <div id="content-wrap" class="relative w-full min-h-1/2 flex content-start {{ sidebar ? 'gap-4 lg:gap-6 flex flex-col' : 'flex-col' }} {{ sidebarPos == 'left' ? 'lg:flex-row' : 'lg:flex-row-reverse' }} {{ not isHomePage and not isLoggedIn ? 'flex-col-reverse'}} clearfix">
+
+                        {% if sidebar and (sidebarContents or menuModule) %}
+                            <div id="sidebar" class="w-full lg:w-sidebar lg:min-w-72 lg:max-w-xs ">
+                                {% block sidebar %}
+                                {{ include('navigation.twig.html') }}
+                                {% endblock sidebar %}
+                            </div>
+
+                        {% else %}
+                            {{ include('navigation.twig.html') }}
+                        {% endif %}
+
+                        <div id="content" class="{{ contentClass ? contentClass : 'max-w-full' }} {{ isHomePage and isLoggedIn ? 'bg-gray-100' : 'bg-white pb-6'}} w-full shadow  sm:rounded lg:flex-1 px-4 sm:px-8">
+
+                            <div id="content-inner" class="h-full">
+                                
+                                {% block page %}
+                                    {{ include('page.twig.html') }}
+                                    {{ content|join("\n")|raw }}
+                                {% endblock %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {% if isLoggedIn %}
+                        <div class="text-right mt-2 text-xs pr-1">
+                            <a class='text-{{ themeColour }}-800' href='#top'>{{ __('Return to top') }}</a>
+                        </div>
+                    {% endif %}
+
+                    {% block afterPage %}
+                    {% endblock afterPage %}
+                </div>
+
+                
+
+                {% block footer %}
+                    <div class="relative text-sm text-gray-700 px-4 lg:px-4 mt-4 pt-2 pb-6 leading-normal  {{ rightToLeft ? 'text-right' : 'text-left' }}">
+                        {{ include('footer.twig.html') }}
+                    </div>
+                {% endblock %}
+
+            </div>
+
+            {% block privacy %}
+            {{ include('privacy.twig.html') }}
+            {% endblock privacy %}
+
+            {% block foot %}
+            {{ include('foot.twig.html') }}
+            {% endblock foot %}
+
+            <script>
+                const mq = window.matchMedia("(min-width: 768px)");
+                const btnSidebar = document.getElementById("mobile-sidebar-btn")
+                const sidebar = document.getElementById("sidebar-container");
+                const btnCloseSidebar = document.getElementById("close-sidebar-btn")
+
+                const handleOpenSidebar = () => {
+                    sidebar.classList.remove('sidebar-menu--hide')
+                    sidebar.classList.add("sidebar-menu--show")
+                }
+
+                const handleCloseSidebar = () => {
+                    sidebar.classList.remove("sidebar-menu--show")
+                    sidebar.classList.add('sidebar-menu--hide')
+                }
+
+                btnSidebar.addEventListener("click", () => {
+                    handleOpenSidebar()
+                })
+
+                btnCloseSidebar.addEventListener("click", () => {
+                    if(sidebar.classList.contains('sidebar-menu--hide')){
+                        handleOpenSidebar()
+                        return
+                    }
+                    handleCloseSidebar()
+                })
+
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        handleOpenSidebar()
+                    });
+                });
+
+                //  ─── close when clicking anywhere outside sidebar (and outside the open-btn) ───
+                document.addEventListener("click", e => {
+                    // if sidebar is open
+                    if ( sidebar.classList.contains("sidebar-menu--show") ) {
+                    // and the click was NOT inside sidebar nor on the open button…
+                    const clickedOutsideSidebar  = !sidebar.contains(e.target)
+                    const clickedOutsideOpenBtn  = !btnSidebar.contains(e.target)
+
+                    if ( clickedOutsideSidebar && clickedOutsideOpenBtn ) {
+                        handleCloseSidebar()
+                    }
+                    }
+                })
+            </script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                const mq = window.matchMedia("(min-width: 768px)");
+
+                document.querySelectorAll('[data-tooltip]').forEach(el => {
+                    el.addEventListener('mouseenter', function() {
+                    // 1) only show on md+ screens
+                    if (!mq.matches) return;
+                    // 2) do not show if sidebar is open
+                    if (document.querySelector('.sidebar-menu--show')) return;
+
+                    const tip = document.createElement('div');
+                    tip.className = 'absolute flex flex-col items-center z-50';
+
+                    const box = document.createElement('div');
+                    box.className = 'bg-black text-white text-xs rounded px-2 py-1 whitespace-no-wrap';
+                    box.innerText = this.getAttribute('data-tooltip');
+
+                    const arrow = document.createElement('div');
+                    arrow.className = [
+                        'w-0','h-0',
+                        'border-l-4','border-r-4','border-t-4',
+                        'border-l-transparent','border-r-transparent','border-t-black'
+                    ].join(' ');
+
+                    tip.appendChild(box);
+                    tip.appendChild(arrow);
+                    document.body.appendChild(tip);
+
+                    // position above & centered on the target
+                    const rect   = this.getBoundingClientRect();
+                    const tRect  = tip.getBoundingClientRect();
+                    tip.style.left = `${rect.left + rect.width/2 - tRect.width/2}px`;
+                    tip.style.top  = `${rect.top - tRect.height - 8}px`;
+
+                    this._tooltipEl = tip;
+                    });
+
+                    el.addEventListener('mouseleave', function() {
+                    if (this._tooltipEl) {
+                        document.body.removeChild(this._tooltipEl);
+                        this._tooltipEl = null;
+                    }
+                    });
+                });
+                });
+            </script>  
+
+
+        {% else %}
+            <div id="wrapOuter" class="relative flex-1 bg-transparent-100 wrapOuter-login flex flex-col justify-center relative" style="height:100vh; margin-left: 0 !important;margin-top:0 !important;">  
+                <!-- <div id="wrap" class="px-0 sm:px-6 lg:px-16 -mt-48"> -->
+                    <div id="wrap" class="px-0">
+
+
+                    <div class="block lg:hidden mx-4 sm:mx-0 mb-4">
+                    {% for type, alerts in page.alerts %}
+                        {% for text in alerts %}
+                            <div class="{{ type }}">{{ text|raw }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                    </div>
+
+                    <div id="content-wrap" class="relative w-full min-h-1/2 flex content-start {{ sidebar ? 'gap-4 lg:gap-6 flex flex-col' : 'flex-col' }} {{ sidebarPos == 'left' ? 'lg:flex-row' : 'lg:flex-row-reverse' }} {{ not isHomePage and not isLoggedIn ? 'flex-col-reverse'}} clearfix">
+
+                        {% if sidebar and (sidebarContents or menuModule) %}
+                            <div id="sidebar" class="w-full w-full sidebar-login ">
+                                {{ include('navigation.twig.html') }}
+                            </div>
+
+                        {% else %}
+                            {{ include('navigation.twig.html') }}
+                        {% endif %}
+
+                        <div id="content" class="{{ contentClass ? contentClass : 'max-w-full' }} {{ isHomePage and isLoggedIn ? 'bg-gray-100' : 'bg-white pb-6'}} w-full shadow  sm:rounded lg:flex-1 px-4 sm:px-8">
+
+                            <div id="content-inner" class="h-full">
+                                
+
+                                    {{ include('page.twig.html') }}
+                                    {{ content|join("\n")|raw }}
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
+                </div>
+
+                <div class="absolute bottom-4 w-full footer-login relative text-sm text-gray-700 px-4 lg:px-4 mt-4 pt-2 pb-6 leading-normal  {{ rightToLeft ? 'text-right' : 'text-left' }}" style="position: absolute;bottom:1rem;">
+                    {{ include('footer.twig.html') }}
+                </div>
+
+
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const loginContent = document.getElementById("js-login-form-container")
+                    const resetPasswordContent = document.getElementById("content");
+
+
+                if (window.location.href.indexOf('passwordReset.php') !== -1) {
+                    // the URL contains “passwordReset.php”
+                    console.log('Showing password reset flow');
+                    loginContent.style = 'display:none;';
+                    resetPasswordContent.style = 'display:block !important;'
+                } else {
+                     console.log('Not on password reset page');
+                }             
+                })
+   
+            </script>
+        {% endif %}
+
+
+
+
+
     </body>
 </html>

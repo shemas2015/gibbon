@@ -23,9 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * Sets the database connection information.
  * You can supply an optional $databasePort if your server requires one.
  */
-$databaseServer = '127.0.0.1';
+$databaseServer = '5.161.61.25';
 $databaseUsername = 'root';
-$databasePassword = 'root';
+$databasePassword = 'ill8a6X2wO7zcBf';
 $databaseName = 'sis_aquinas';
 
 /**
@@ -38,6 +38,4 @@ $guid = '0m7055stj-yygf-jqu0-ged2-gf9372wcrxx';
  * Value represents number of page loads between cache refresh.
  * Must be positive integer. 1 means no caching.
  */
-/** $caching = 10; **/
-$caching = 1;
-define('DEVELOPMENT_MODE', true);
+$caching = 10;

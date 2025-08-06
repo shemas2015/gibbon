@@ -211,10 +211,37 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
             }
 
             if (!$this->session->exists('username')) { // If Google Auth set to No make sure login screen not visible when logged in
+                // 1) Base URL
+                $absoluteURL = $this->session->get('absoluteURL');
+
+                // 2) Grab exactly the same session value Twig uses
+                $logoPath = $this->session->get('organisationLogo');
+
+                // 3) Fall back to Twig’s default if none was set
+                if (empty($logoPath)) {
+                    $logoPath = 'themes/Default/img/logo.png';
+                }
+
+                // 4) Strip any leading slash so you don’t end up with “//…”
+                $logoPath = ltrim($logoPath, '/');
+
+                // 5) Echo out the image exactly as Twig does
+                echo sprintf(
+                    '<div class="text-center mb-4">
+                    <img src="%s/%s" alt="%s Logo" class="w-full" style="max-width:150px;" ">
+                    </div>',
+                    htmlspecialchars($absoluteURL, ENT_QUOTES),
+                    htmlspecialchars($logoPath, ENT_QUOTES),
+                    htmlspecialchars($this->session->get('organisationName'), ENT_QUOTES)
+);
                 echo '<div class="column-no-break">';
-                echo '<h2>';
-                    echo __('Login');
-                echo '</h2>';
+                // echo '<h2 class="text-center">';
+                //     echo __('Login');
+                // echo '</h2>';
+                echo '<p class="text-center">';
+                    echo __('Welcome, please enter your email and password to continue');
+                echo '</p>';
+                
 
                 unset($_GET['return']);
 
@@ -316,10 +343,10 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                         $row->addContent('<a class="text-xs font-semibold text-gray-700 hover:text-blue-600 hover:underline" href="'.Url::fromRoute('passwordReset').'">'.__('Forgot Password?').'</a>')
                             ->wrap('<span class="small">', '</span>')
                             ->setClass('flex-1');
-                        $row->addToggle('options')
-                            ->setToggle('Y', __('Options'), 'N', __('Options'))
-                            ->setSize('sm')
-                            ->setAttribute('@click', 'options = !options');
+                        // $row->addToggle('options')
+                        //     ->setToggle('Y', __('Options'), 'N', __('Options'))
+                        //     ->setSize('sm')
+                        //     ->setAttribute('@click', 'options = !options');
                 }
 
                 $row = $form->addRow()->setClass('flex justify-end items-center');

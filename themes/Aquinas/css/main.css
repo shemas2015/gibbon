@@ -1201,9 +1201,118 @@ button[type="button"].bg-gray-100{
     border: 1px solid red !important;
 }
 
+/* Sidebar */
+.sidebar-menu{
+    border-right: 1px solid #ebebeb;
+}
+
+.hover-trigger:hover .submenu {
+    display: block;
+}
+
+.sidebar-menu--hide {
+    transition: 0.3s all ease;
+    transform: translate(-230px , 0px);
+}
+
+.sidebar-menu--show {
+    transition: 0.3s all ease;
+    transform: translate(0px , 0px);
+}
+
+/* Login Page */
+.sidebar-login{
+    width: 100%;
+    max-width: 530px;
+}
+.sidebar-login .login-form-sidebar {
+    padding: 1rem;
+    padding-top: 2rem;
+}
+
+.login-form-sidebar input {
+    background: #FAFCFE !important;
+    border-left: none !important;
+}
+
+.login-form-sidebar button[type='button']{
+    background: #FAFCFE !important;
+}
+
+.login-form-sidebar button svg {
+    background: #FAFCFE !important;
+}
+
+.wrapOuter-login{
+    margin-left: 0px !important;
+}
+
+.wrapOuter-login #content-wrap{
+    align-items: center !important;
+    justify-content: center;
+    margin-left: 0px !important;
+}
+
+.wrapOuter-login #content{
+    display: none !important;
+}
 
 @media (min-width:768px){
+    #header{
+        position: fixed !important;
+        top: 0;
+        z-index: 50;
+        width: 100%;
+        border-bottom: 1px solid #ebebeb;
+    }
+    #wrapOuter{
+        margin-left: 70px !important;
+        margin-top: 5rem;
+
+    }
+
+
     #finderTray{
         padding-right: 4rem;
+    }
+
+    .sidebar-menu{
+        margin-top: 5.2rem;
+    }
+
+    .sidebar-menu--hide{
+        width: 60px !important;
+        transform: translate(0px, 0px);
+    }
+
+    .sidebar-menu--hide #close-sidebar-btn {
+        transform: rotate(180deg);
+    }
+
+    .sidebar-menu--hide .content {
+        display: none;
+    }
+
+    .sidebar-menu--hide .right {
+        display: none;
+    }
+
+    .sidebar-menu--hide .sub {
+        display: none !important;
+    }
+
+    .sidebar-menu--show {
+        width: 230px !important;
+    }
+    .sidebar-login .login-form-sidebar {
+        column-count: 1 !important;
+    }
+}
+
+
+@media(min-width:1024px){
+    #wrapOuter{
+        margin-top: 6rem;
+
     }
 }
