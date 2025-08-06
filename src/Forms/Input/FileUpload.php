@@ -288,6 +288,11 @@ class FileUpload extends Input
                             $output .= icon('solid', 'delete', 'size-6 sm:size-5');
                             $output .= '</div>';
                         }
+                        elseif($approveDocuments == false){
+                            $output .= "<div title='".__('Delete')."' class='inline-button text-gray-600' onclick='if(confirm(\"".__('Are you sure you want to delete this record?').' '.__('Changes will be saved when you submit this form.')."\")) { $(\"#".$attachmentNameEscaped."\").val(\"\"); $(\"#".$idEscaped."\").show(); $(\"#".$idEscaped." + .max-upload\").show(); $(\"#".$idEscaped."\").prop(\"disabled\", false); $(this).parent().detach().remove(); };'>";
+                            $output .= icon('solid', 'delete', 'size-6 sm:size-5');
+                            $output .= '</div>';
+                        }
                     }
 
                     $output .= '</div>';
