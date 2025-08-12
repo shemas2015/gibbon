@@ -1015,17 +1015,18 @@ class Format
      */
     public static function userPhoto($path, $size = 75, $class = '')
     {
-        $class .= ' inline-block shadow bg-white border border-gray-600 ';
+        // $class .= ' inline-block shadow bg-white border border-gray-600 ';
+        $class .= ' inline-block bg-white rounded-full object-cover ';
 
         switch ($size) {
             case 240:
             case 'lg':
-                $class .= 'w-48 sm:w-64 max-w-full p-1 mx-auto';
+                $class .= 'w-24 h-24 sm:w-28 sm:h-28 max-w-full p-1 mx-auto';
                 $imageSize = 240;
                 break;
             case 75:
             case 'md':
-                $class .= 'w-20 lg:w-24 p-1';
+                $class .= 'w-28 h-28 lg:w-24 lg:h-24 p-1';
                 $imageSize = 75;
                 break;
 
@@ -1047,7 +1048,7 @@ class Format
             $path = '/themes/'.static::$settings['gibbonThemeName'].'/img/anonymous_'.$imageSize.'.jpg';
         }
 
-        return sprintf('<img class="%1$s" src="%2$s">', $class, static::$settings['absoluteURL'].'/'.$path);
+        return sprintf('<img style="object-fit:cover;height:6rem; width:6rem;" class="%1$s" src="%2$s">', $class, static::$settings['absoluteURL'].'/'.$path);
     }
 
     /**
