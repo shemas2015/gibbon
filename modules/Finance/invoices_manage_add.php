@@ -132,6 +132,15 @@ if (isActionAccessible($guid, $connection2, '/modules/Finance/invoices_manage_ad
                     ->required()
                     ->placeholder(__('Value').(!empty($session->get('currency'))? ' ('.$session->get('currency').')' : ''));
 
+
+                $col->addNumber('numberPayments')
+                    ->setClass('ml-1')
+                    ;
+
+                $col->addCurrency('unitValue')
+                    ->setClass('ml-1')
+                    ;
+
             $col = $blockTemplate->addRow()->addClass('showHide w-full')->addColumn();
                 $col->addLabel('description', __('Description'));
                 $col->addTextArea('description')->setRows('auto')->setClass('w-full float-none m-0');
@@ -147,13 +156,18 @@ if (isActionAccessible($guid, $connection2, '/modules/Finance/invoices_manage_ad
 
         // Add predefined block data (for templating new blocks, triggered with the feeSelector)
         $data = array('gibbonSchoolYearID' => $gibbonSchoolYearID);
-        $sql = "SELECT gibbonFinanceFeeID as groupBy, gibbonFinanceFeeID, name, description, fee, gibbonFinanceFeeCategoryID FROM gibbonFinanceFee WHERE gibbonSchoolYearID=:gibbonSchoolYearID ORDER BY name";
+        $sql = "SELECT gibbonFinanceFeeID as groupBy, gibbonFinanceFeeID, name, description, fee, gibbonFinanceFeeCategoryID,numberPayments FROM gibbonFinanceFee WHERE gibbonSchoolYearID=:gibbonSchoolYearID ORDER BY name";
         $result = $pdo->executeQuery($data, $sql);
         $feeData = $result->rowCount() > 0? $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE) : array();
 
+        foreach ($feeData as &$fee) {
+            $fee['unitValue'] = $fee['fee'] / $fee['numberPayments'];
+        }
+        unset($fee);        
+
         $customBlocks->addPredefinedBlock('Ad Hoc Fee', array('feeType' => 'Ad Hoc', 'gibbonFinanceFeeID' => 0));
         foreach ($feeData as $gibbonFinanceFeeID => $data) {
-            $customBlocks->addPredefinedBlock($gibbonFinanceFeeID, $data + array('feeType' => 'Standard', 'readonly' => ['name', 'fee', 'description', 'gibbonFinanceFeeCategoryID']) );
+            $customBlocks->addPredefinedBlock($gibbonFinanceFeeID, $data + array('feeType' => 'Standard', 'readonly' => ['name', 'fee','numberPayments','unitValue','description', 'gibbonFinanceFeeCategoryID']) );
         }
 
         $row = $form->addRow();

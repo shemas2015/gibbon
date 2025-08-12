@@ -68,16 +68,19 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
 
             //PROCESS FEES
             $fees = array();
+            $idx = 1;
             foreach ($order as $fee) {
-                $fees[$fee]['name'] = $_POST['name'.$fee] ?? '';
-                $fees[$fee]['gibbonFinanceFeeCategoryID'] = $_POST['gibbonFinanceFeeCategoryID'.$fee] ?? '';
-                $fees[$fee]['fee'] = $_POST['fee'.$fee] ?? '';
-                $fees[$fee]['feeType'] = $_POST['feeType'.$fee] ?? '';
-                $fees[$fee]['gibbonFinanceFeeID'] = $_POST['gibbonFinanceFeeID'.$fee] ?? '';
-                $fees[$fee]['description'] = $_POST['description'.$fee] ?? '';
-
-                if ($fees[$fee]['name'] == '' or $fees[$fee]['gibbonFinanceFeeCategoryID'] == '' or $fees[$fee]['fee'] == '' or is_numeric($fees[$fee]['fee']) == false or $fees[$fee]['feeType'] == '' or ($fees[$fee]['feeType'] == 'Standard' and $fees[$fee]['gibbonFinanceFeeID'] == '')) {
-                    $feeFail = true;
+                $numPayments = (int)($_POST['numberPayments'.$fee] ?? 1);
+                for ($i = 1; $i <= $numPayments; $i++) {
+                    $fees[$idx] = [
+                        'name' => $_POST['name'.$fee] ?? '',
+                        'gibbonFinanceFeeCategoryID' => $_POST['gibbonFinanceFeeCategoryID'.$fee] ?? '',
+                        'fee' => $numPayments > 1 ? ($_POST['unitValue'.$fee] ?? '') : ($_POST['fee'.$fee] ?? ''),
+                        'feeType' => $_POST['feeType'.$fee] ?? '',
+                        'gibbonFinanceFeeID' => $_POST['gibbonFinanceFeeID'.$fee] ?? '',
+                        'description' => $_POST['description'.$fee] ?? ''
+                    ];
+                    $idx++;
                 }
             }
 

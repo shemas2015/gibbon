@@ -41,6 +41,7 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
         $description = $_POST['description'] ?? '';
         $gibbonFinanceFeeCategoryID = $_POST['gibbonFinanceFeeCategoryID'] ?? '';
         $fee = $_POST['fee'] ?? '';
+        $numberPayments = $_POST['number_of_payments'] ?? '1';
 
         if ($name == '' or $nameShort == '' or $active == '' or $gibbonFinanceFeeCategoryID == '' or $fee == '') {
             $URL .= '&return=error1';
@@ -49,8 +50,8 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
 
             //Write to database
             try {
-                $data = array('gibbonSchoolYearID' => $gibbonSchoolYearID, 'name' => $name, 'nameShort' => $nameShort, 'active' => $active, 'description' => $description, 'gibbonFinanceFeeCategoryID' => $gibbonFinanceFeeCategoryID, 'fee' => $fee, 'gibbonPersonIDCreator' => $session->get('gibbonPersonID'));
-                $sql = "INSERT INTO gibbonFinanceFee SET gibbonSchoolYearID=:gibbonSchoolYearID, name=:name, nameShort=:nameShort, active=:active, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, gibbonPersonIDCreator=:gibbonPersonIDCreator, timestampCreator='".date('Y-m-d H:i:s')."'";
+                $data = array('gibbonSchoolYearID' => $gibbonSchoolYearID, 'name' => $name, 'nameShort' => $nameShort, 'active' => $active, 'description' => $description, 'gibbonFinanceFeeCategoryID' => $gibbonFinanceFeeCategoryID, 'fee' => $fee, 'gibbonPersonIDCreator' => $session->get('gibbonPersonID') , "numberPayments"=> $numberPayments);
+                $sql = "INSERT INTO gibbonFinanceFee SET gibbonSchoolYearID=:gibbonSchoolYearID, name=:name, nameShort=:nameShort, active=:active, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, gibbonPersonIDCreator=:gibbonPersonIDCreator, timestampCreator='".date('Y-m-d H:i:s')."',numberPayments=:numberPayments";
                 $result = $connection2->prepare($sql);
                 $result->execute($data);
             } catch (PDOException $e) {

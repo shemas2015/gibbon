@@ -94,6 +94,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Finance/fees_manage_add.ph
             $row->addSelect('gibbonFinanceFeeCategoryID')->fromQuery($pdo, $sql, $data)->fromArray(array('1' => __('Other')))->required()->placeholder();
 
         $row = $form->addRow();
+            $row->addLabel('number_of_payments', __('Number of payments'));
+            $test = $row->addNumber('number_of_payments')->setValue("1");
+
+        $row = $form->addRow();
             $row->addLabel('fee', __('Fee'))
                 ->description(__('Numeric value of the fee.'));
             $row->addCurrency('fee')->required();
