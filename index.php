@@ -722,6 +722,7 @@ if (!empty($_GET['return'])) {
  *
  * TODO: rewrite the Sidebar class as a template file.
  */
+
 $sidebarContents = '';
 if ($page['showSidebar']) {
     $page->addSidebarExtra($session->get('sidebarExtra'));

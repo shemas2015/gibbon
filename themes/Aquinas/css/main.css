@@ -1255,8 +1255,34 @@ button[type="button"].bg-gray-100{
 
 .wrapOuter-login #content{
     display: none !important;
+    max-width: 530px !important;
 }
 
+.wrapOuter-login #content section {
+    border: none !important;
+    background: none !important;
+}
+
+.recover-pass-btn button {
+    background: #0B1014 !important;
+}
+
+.moduleMenu {
+    list-style:  none !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+}
+
+.moduleMenu a{
+    color: hsl(220 8% 38%/var(--tw-text-opacity)) !important;
+}
+.moduleMenu .subModuleMenuItem--active{
+    color: var(--blue-theme-aquinas) !important;
+    background-color: transparent !important;
+    text-decoration: underline !important;
+}
 @media (min-width:768px){
     #header{
         position: fixed !important;

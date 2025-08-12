@@ -23,7 +23,7 @@ use Gibbon\Data\PasswordPolicy;
 use Gibbon\Forms\Form;
 use Gibbon\Data\Validator;
 
-$page->breadcrumbs->add(__('Password Reset'));
+// $page->breadcrumbs->add(__('Password Reset'));
 
 $page->return->addReturns([
     'error0'   => __('Email address not set.'),
@@ -43,23 +43,116 @@ if (isset($_GET['step']) and $_GET['step'] == 2) {
 }
 
 if ($step == 1) {
+     $absoluteURL = $session->get('absoluteURL');
+
+     $logoPath = $session->get('organisationLogo');
+
+     if (empty($logoPath)) {
+        $logoPath = 'themes/Default/img/logo.png';
+    }
+
+     $logoPath = ltrim($logoPath, '/');
+
+ 
+    echo sprintf(
+        '<div class="text-center mb-4">
+            <img src="%s/%s" alt="%s Logo" class="w-full" style="max-width:150px;">
+        </div>',
+        htmlspecialchars($absoluteURL, ENT_QUOTES),
+        htmlspecialchars($logoPath, ENT_QUOTES),
+        htmlspecialchars($session->get('organisationName'), ENT_QUOTES)
+    );
+
     ?>
-    <p>
+    <p class="text-center">
         <?php echo sprintf(__('Enter your %1$s username, or the email address you have listed in the system, and press submit: a unique password reset link will be emailed to you.'), $session->get('systemName')); ?>
     </p>
-    <?php
-    
+    <?php    
 
     $form = Form::create('action', $session->get('absoluteURL').'/passwordResetProcess.php?step=1');
     $form->addClass('disable-warnings');
 
     $form->addHiddenValue('address', $session->get('address'));
 
-    $row = $form->addRow();
-        $row->addLabel('email', __('Username/Email'));
-        $row->addTextField('email')->maxLength(255)->required();
+    // $row = $form->addRow()
+    //     ->addClass('flex items-center justify-between gap-0')
+    //     ->setAttribute('style', 'gap:0;width:100%;padding:0;display:flex; flex-direction:row;');
+    //     $row->addButton('')
+    //         ->setID('usernameLabel')
+    //         ->setIcon('user')
+    //         ->groupAlign('left')
+    //         ->setAria('label', __('Username/Email'))
+    //         ->setTitle(__('Username or email'))
+    //         ->setClass('text-sm py-2 flex-0')
+    //         ->setAttribute('tabindex', -1)
+    //         ->setAttribute('style', 'gap:0;background: #FAFCFE !important;');
 
-    $row = $form->addRow()->addSubmit();
+    //     $row->addTextField('email')
+    //         // ->groupAlign('right')
+    //         ->required()
+    //         ->maxLength(255)
+    //         ->setClass('w-full flex-grow py-2 forgot-pass-input')
+    //         ->setAria('label', __('Username or email'))
+    //         ->placeholder(__('Username or email'))
+    //         ->addValidationOption('onlyOnSubmit: true')
+    //         ->setAttribute('style', 'background: #FAFCFE !important;border-left: none !important;border-radius:0px;border-top-right-radius:5px; border-bottom-right-radius:5px');   
+            
+    // // Link row
+    // $form->addRow()
+    //     ->addContent('<a href="'.$session->get('absoluteURL').'/index.php" class="text-blue-600 hover:underline text-sm block text-center mt-2">'.__('Login').'</a>')
+    //     ->setClass('w-full text-center');
+                    
+    // $row = $form->addRow()
+    //     ->addClass('etoquee') 
+    //     ->setAttribute('style', 'padding: 0 !important;')
+    //     ->addSubmit(__('Recover'))
+    //         -> setAttribute('style', 'text-align: center !important;')
+    //         ->addClass('w-full recover-pass-btn text-center'); 
+
+
+    // Input row
+    $row = $form->addRow()
+        ->addClass('flex items-center justify-between gap-0')
+        ->setAttribute('style', 'gap:0;width:100%;padding:0;display:flex; flex-direction:row;');
+
+    $row->addButton('')
+        ->setID('usernameLabel')
+        ->setIcon('user')
+        ->groupAlign('left')
+        ->setAria('label', __('Username/Email'))
+        ->setTitle(__('Username or email'))
+        ->setClass('text-sm py-2 flex-0')
+        ->setAttribute('tabindex', -1)
+        ->setAttribute('style', 'gap:0;background: #FAFCFE !important;');
+
+    $row->addTextField('email')
+        ->required()
+        ->maxLength(255)
+        ->setClass('w-full flex-grow py-2 forgot-pass-input')
+        ->setAria('label', __('Username or email'))
+        ->placeholder(__('Username or email'))
+        ->addValidationOption('onlyOnSubmit: true')
+        ->setAttribute('style', 'background: #FAFCFE !important;border-left: none !important;border-radius:0px;border-top-right-radius:5px; border-bottom-right-radius:5px');
+
+            
+    // Recover button row
+    $row = $form->addRow()
+        ->addClass('etoquee') 
+        ->setAttribute('style', 'padding: 0 !important;');
+        
+        $row->addSubmit(__('Recover'))
+        ->setAttribute('style', 'text-align: center !important;')
+        ->addClass('w-full recover-pass-btn text-center');
+        // Login link row (after button)
+        $form->addRow()
+            ->addContent('<a href="'.$session->get('absoluteURL').'/index.php" class="text-blue-600 hover:underline text-sm block text-center mt-2">'.__('Login').'</a>')
+            ->setClass('w-full text-center');
+
+
+
+
+            
+   
 
     echo $form->getOutput();
 }
