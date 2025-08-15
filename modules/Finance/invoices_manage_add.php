@@ -138,8 +138,23 @@ if (isActionAccessible($guid, $connection2, '/modules/Finance/invoices_manage_ad
                     ;
 
                 $col->addCurrency('unitValue')
+                ->setClass('ml-1')
+                ;
+
+                $col->addDate('startDate')
+                    ->setClass('ml-1');
+
+                $periodOptions = [
+                    'weekly' => __('Weekly'),
+                    'monthly' => __('Monthly'), 
+                    'quarterly' => __('Quarterly'),
+                    'semiannually' => __('Semiannually')
+                ];
+
+                $col->addSelect('period')
+                    ->fromArray($periodOptions)
                     ->setClass('ml-1')
-                    ;
+                    ->placeholder(__('Select Period'));
 
             $col = $blockTemplate->addRow()->addClass('showHide w-full')->addColumn();
                 $col->addLabel('description', __('Description'));
@@ -161,9 +176,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Finance/invoices_manage_ad
         $feeData = $result->rowCount() > 0? $result->fetchAll(\PDO::FETCH_GROUP|\PDO::FETCH_UNIQUE) : array();
 
         foreach ($feeData as &$fee) {
-            $fee['unitValue'] = $fee['fee'] / $fee['numberPayments'];
+            $fee['unitValue'] = round($fee['fee'] / $fee['numberPayments'], 2);
         }
-        unset($fee);        
+        unset($fee);
 
         $customBlocks->addPredefinedBlock('Ad Hoc Fee', array('feeType' => 'Ad Hoc', 'gibbonFinanceFeeID' => 0));
         foreach ($feeData as $gibbonFinanceFeeID => $data) {
