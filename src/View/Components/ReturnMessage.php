@@ -65,6 +65,18 @@ class ReturnMessage
             #Finance invoice fees
             'error12_1' => __('Start Date and Period are required when Number of Payments is greater than 1.'),
 
+            #Moodle course creation errors
+            'course_permission_denied' => __('Permission denied to create course in Moodle.'),
+            'course_invalid_category' => __('Invalid category specified for Moodle course.'),
+            'course_connection_failed' => __('Connection to Moodle failed.'),
+            'course_auth_failed' => __('Moodle authentication failed.'),
+            'course_creation_failed' => __('Failed to create course in Moodle.'),
+
+            #Moodle course update errors
+            'course_update_failed' => __('Failed to update course in Moodle.'),
+            'course_not_found' => __('Course not found in Moodle for updating.'),
+            'course_update_permission_denied' => __('Permission denied to update course in Moodle.'),
+
             //Warnings
             'warning0' => __('Your optional extra data failed to save.'),
             'warning1' => __('Your request was successful, but some data was not properly saved.'),

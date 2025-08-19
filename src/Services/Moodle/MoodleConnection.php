@@ -201,6 +201,141 @@ class MoodleConnection
     }
 
     /**
+     * Create a new course in Moodle
+     *
+     * @param string $fullname Course full name
+     * @param string $shortname Course short name
+     * @param int $categoryid Category ID (defaults to 1)
+     * @return array Creation result
+     */
+    public function createCourse(string $fullname, string $shortname, int $categoryid = 1): array
+    {
+        $params = [
+            'courses[0][fullname]' => $fullname,
+            'courses[0][shortname]' => $shortname,
+            'courses[0][categoryid]' => $categoryid
+        ];
+
+        $result = $this->callWebService('core_course_create_courses', $params);
+        
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to create course in Moodle',
+                'error' => $this->getLastError()
+            ];
+        }
+
+        // Check if course was created successfully
+        if (isset($result[0]['id'])) {
+            return [
+                'success' => true,
+                'message' => 'Course created successfully in Moodle',
+                'course_id' => $result[0]['id'],
+                'shortname' => $result[0]['shortname'] ?? $shortname
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Unexpected response from Moodle course creation',
+                'response' => $result
+            ];
+        }
+    }
+
+    /**
+     * Update an existing course in Moodle
+     *
+     * @param string $oldShortname Current course shortname to find the course
+     * @param string $newFullname New course full name
+     * @param string $newShortname New course short name
+     * @return array Update result
+     */
+    public function updateCourse(string $oldShortname, string $newFullname, string $newShortname): array
+    {
+        // First, find the course by shortname
+        $courseInfo = $this->getCourseByShortname($oldShortname);
+        
+        if (!$courseInfo['success']) {
+            return [
+                'success' => false,
+                'message' => 'Course not found in Moodle',
+                'error' => $courseInfo['error'] ?? 'Course lookup failed'
+            ];
+        }
+
+        $courseId = $courseInfo['course_id'];
+
+        // Update the course
+        $params = [
+            'courses[0][id]' => $courseId,
+            'courses[0][fullname]' => $newFullname,
+            'courses[0][shortname]' => $newShortname
+        ];
+
+        $result = $this->callWebService('core_course_update_courses', $params);
+
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update course in Moodle',
+                'error' => $this->getLastError()
+            ];
+        }
+
+        // Check if update was successful
+        if (isset($result['warnings']) && empty($result['warnings'])) {
+            return [
+                'success' => true,
+                'message' => 'Course updated successfully in Moodle',
+                'course_id' => $courseId
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Course update failed',
+                'warnings' => $result['warnings'] ?? []
+            ];
+        }
+    }
+
+    /**
+     * Get course by shortname
+     *
+     * @param string $shortname Course shortname
+     * @return array Course information
+     */
+    public function getCourseByShortname(string $shortname): array
+    {
+        $params = [
+            'criteria[0][key]' => 'shortname',
+            'criteria[0][value]' => $shortname
+        ];
+
+        $result = $this->callWebService('core_course_get_courses_by_field', $params);
+
+        if ($result === false) {
+            return [
+                'success' => false,
+                'error' => $this->getLastError()
+            ];
+        }
+
+        if (isset($result['courses']) && !empty($result['courses'])) {
+            return [
+                'success' => true,
+                'course_id' => $result['courses'][0]['id'],
+                'course_data' => $result['courses'][0]
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => 'Course not found'
+            ];
+        }
+    }
+
+    /**
      * Check if Moodle is configured
      *
      * @return bool

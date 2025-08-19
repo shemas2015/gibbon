@@ -63,7 +63,7 @@ if (isActionAccessible($guid, $connection2, '/modules/School Admin/formGroup_man
 
             $row = $form->addRow();
                 $row->addLabel('name', __('Name'))->description(__('Needs to be unique in school year.'));
-                $row->addTextField('name')->required()->maxLength(20);
+                $row->addTextField('name')->readonly()->maxLength(20);
 
             $row = $form->addRow();
                 $row->addLabel('nameShort', __('Short Name'))->description(__('Needs to be unique in school year.'));

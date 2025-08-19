@@ -148,6 +148,32 @@ class MoodleService
     }
 
     /**
+     * Create a new course in Moodle
+     *
+     * @param string $fullname Course full name
+     * @param string $shortname Course short name
+     * @param int $categoryid Category ID (defaults to 1)
+     * @return array Creation result
+     */
+    public function createCourse(string $fullname, string $shortname, int $categoryid = 1): array
+    {
+        return $this->connection->createCourse($fullname, $shortname, $categoryid);
+    }
+
+    /**
+     * Update an existing course in Moodle
+     *
+     * @param string $oldShortname Current course shortname
+     * @param string $newFullname New course full name
+     * @param string $newShortname New course short name
+     * @return array Update result
+     */
+    public function updateCourse(string $oldShortname, string $newFullname, string $newShortname): array
+    {
+        return $this->connection->updateCourse($oldShortname, $newFullname, $newShortname);
+    }
+
+    /**
      * Get connection status
      *
      * @return array Connection status

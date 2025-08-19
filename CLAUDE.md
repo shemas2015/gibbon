@@ -60,6 +60,13 @@ Each module in `/modules/[ModuleName]/` contains:
 - `moduleFunctions.php` - Module-specific helper functions
 - Domain gateways in `src/Domain/[ModuleName]/`
 
+**External Integrations**:
+- `src/Services/Moodle/` - Moodle LMS integration service
+  - `MoodleConnection` - Direct API communication with Moodle web services
+  - `MoodleService` - High-level service layer for Moodle operations
+  - `MoodleServiceProvider` - DI container registration for Moodle services
+- Integration points: Form group creation automatically creates corresponding Moodle courses
+
 ### Directory Structure
 - `/modules/` - All module functionality organized by feature
 - `/src/` - Core framework code (PSR-4 autoloaded under `Gibbon\` namespace)
@@ -90,5 +97,18 @@ Each module in `/modules/[ModuleName]/` contains:
 ### File Upload System
 - `src/Gibbon/FileUploader.php` - Handles file uploads with validation
 - Upload destinations configured per module/function
+
+### Error Message System
+- `src/View/Components/ReturnMessage.php` - Centralized error/success message handling
+- Custom error codes for specific operations (e.g., Moodle integration errors)
+- Pattern: Use specific error codes like `course_creation_failed` rather than generic `error4`
+
+### Moodle Integration Architecture
+- **Configuration**: Settings stored in System scope (moodleUrl, moodleToken, moodleTimeout)
+- **Service Layer**: Dependency injection pattern for Moodle services
+- **API Communication**: RESTful web service calls using cURL with JSON responses
+- **Integration Flow**: Form group creation → Moodle course creation → Database insertion
+- **Error Handling**: Specific error codes for different failure scenarios
+- **Supported Operations**: Course creation, connection testing, site info retrieval
 
 This architecture supports a modular, extensible school management system with clean separation between data access, business logic, and presentation layers.
