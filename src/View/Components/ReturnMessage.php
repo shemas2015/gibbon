@@ -77,6 +77,13 @@ class ReturnMessage
             'course_not_found' => __('Course not found in Moodle for updating.'),
             'course_update_permission_denied' => __('Permission denied to update course in Moodle.'),
 
+            #Moodle user creation errors
+            'user_creation_failed' => __('Failed to create user in Moodle.'),
+            'user_already_exists' => __('User already exists in Moodle with this username or email.'),
+            'user_permission_denied' => __('Permission denied to create user in Moodle.'),
+            'user_invalid_data' => __('Invalid user data provided for Moodle user creation.'),
+            'user_invalid_password' => __('Password does not meet Moodle requirements (must have special characters).'),
+
             //Warnings
             'warning0' => __('Your optional extra data failed to save.'),
             'warning1' => __('Your request was successful, but some data was not properly saved.'),

@@ -174,6 +174,21 @@ class MoodleService
     }
 
     /**
+     * Create a new user in Moodle
+     *
+     * @param string $username Username
+     * @param string $firstname First name
+     * @param string $lastname Last name
+     * @param string $email Email address
+     * @param string $password Password
+     * @return array Creation result
+     */
+    public function createUser(string $username, string $firstname, string $lastname, string $email, string $password): array
+    {
+        return $this->connection->createUser($username, $firstname, $lastname, $email, $password);
+    }
+
+    /**
      * Get connection status
      *
      * @return array Connection status

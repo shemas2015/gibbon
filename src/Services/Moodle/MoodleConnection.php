@@ -119,6 +119,8 @@ class MoodleConnection
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+
             $error = curl_error($ch);
             curl_close($ch);
 
@@ -127,10 +129,12 @@ class MoodleConnection
                 return false;
             }
 
+            /*
             if ($httpCode !== 200) {
                 $this->lastError = 'HTTP error: ' . $httpCode;
                 return false;
             }
+            */
 
             $result = json_decode($response, true);
             
@@ -139,12 +143,15 @@ class MoodleConnection
                 return false;
             }
 
+            /*
             // Check for Moodle errors
             if (isset($result['exception'])) {
                 $this->lastError = 'Moodle error: ' . ($result['message'] ?? $result['exception']);
                 return false;
             }
+            */
 
+            //echo "<pre>";
             return $result;
 
         } catch (\Exception $e) {
@@ -333,6 +340,134 @@ class MoodleConnection
                 'error' => 'Course not found'
             ];
         }
+    }
+
+    /**
+     * Create a new user in Moodle
+     *
+     * @param string $username Username
+     * @param string $firstname First name
+     * @param string $lastname Last name
+     * @param string $email Email address
+     * @param string $password Password
+     * @return array Creation result
+     */
+    public function createUser(string $username, string $firstname, string $lastname, string $email, string $password): array
+    {
+        $params = [
+            'users[0][username]' => $username,
+            'users[0][firstname]' => $firstname,
+            'users[0][lastname]' => $lastname,
+            'users[0][email]' => $email,
+            'users[0][password]' => $password
+        ];
+
+        $result = $this->callWebService('core_user_create_users', $params);
+
+
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to create user in Moodle',
+                'error' => $this->getLastError(),
+                'error_code' => 'user_creation_failed'
+            ];
+        }
+
+        // Check for specific Moodle errors
+        
+        
+
+        if (isset($result['debuginfo'])) {
+            $debugInfo = $result['debuginfo'];
+            $errorCode = $this->detectUserErrorType($debugInfo);
+            
+            return [
+                'success' => false,
+                'message' => 'Moodle user creation error',
+                'error' => $debugInfo,
+                'error_code' => $errorCode
+            ];
+        }
+
+        // Check for error code responses
+        if (isset($result['errorcode'])) {
+            $errorCode = $this->detectUserErrorType($result['errorcode']);
+            
+            return [
+                'success' => false,
+                'message' => 'Moodle user creation error',
+                'error' => $result['errorcode'],
+                'error_code' => $errorCode
+            ];
+        }
+
+        // Check if user was created successfully
+        if (isset($result[0]['id'])) {
+            return [
+                'success' => true,
+                'message' => 'User created successfully in Moodle',
+                'user_id' => $result[0]['id'],
+                'username' => $result[0]['username'] ?? $username
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Unexpected response from Moodle user creation',
+                'response' => $result,
+                'error_code' => 'user_creation_failed'
+            ];
+        }
+    }
+
+    /**
+     * Detect specific Moodle user error types from error messages
+     *
+     * @param string $error The error message from Moodle
+     * @return string Specific error code
+     */
+    private function detectUserErrorType(?string $error): string
+    {
+        if (empty($error)) {
+            return 'user_creation_failed';
+        }
+
+        $error = strtolower($error);
+
+
+        // Check for username already exists
+        if (stripos($error, 'username already exists') !== false) {
+            return 'user_already_exists';
+        }
+
+        // Check for email already exists
+        if (stripos($error, 'email address already exists') !== false) {
+            return 'user_already_exists';
+        }
+
+        // Check for invalid email address
+        if (stripos($error, 'email address is invalid') !== false) {
+            return 'user_invalid_data';
+        }
+
+        // Check for missing required email
+        if (stripos($error, 'missing required key in single structure: email') !== false) {
+            return 'user_invalid_data';
+        }
+
+        // Check for missing required email
+        if (stripos($error, 'invalid parameter value detected') !== false) {
+            return 'user_invalid_data';
+        }
+        
+
+        // Check for password validation errors
+        if (stripos($error, 'password must have') !== false || 
+            stripos($error, 'special character') !== false) {
+            return 'user_invalid_password';
+        }
+
+        return 'user_creation_failed';
     }
 
     /**
