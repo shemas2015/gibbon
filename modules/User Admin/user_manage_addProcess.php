@@ -185,16 +185,20 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage_add
                     $salt = getSalt();
                     $passwordStrong = hash('sha256', $salt.$password);
 
-                    // First, try to create user in Moodle
+                    // Try to create user in Moodle if configured
                     try {
                         $moodleService = $container->get(MoodleService::class);
-                        $userResult = $moodleService->createUser($username, $firstName, $surname, $email, $password);
+                        $connectionStatus = $moodleService->getConnectionStatus();
                         
-                        if (!$userResult['success']) {
-                            $errorCode = $userResult['error_code'] ?? 'user_creation_failed';
-                            $URL .= '&return=' . $errorCode;
-                            header("Location: {$URL}");
-                            exit();
+                        if ($connectionStatus['fully_configured']) {
+                            $userResult = $moodleService->createUser($username, $firstName, $surname, $email, $password);
+                            
+                            if (!$userResult['success']) {
+                                $errorCode = $userResult['error_code'] ?? 'user_creation_failed';
+                                $URL .= '&return=' . $errorCode;
+                                header("Location: {$URL}");
+                                exit();
+                            }
                         }
                     } catch (Exception $e) {
                         $URL .= '&return=user_creation_failed';

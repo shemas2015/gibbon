@@ -19,7 +19,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 use Gibbon\Data\Validator;
-use Gibbon\Services\Moodle\MoodleService;
 
 include '../../gibbon.php';
 
@@ -68,23 +67,7 @@ if (isActionAccessible($guid, $connection2, '/modules/School Admin/formGroup_man
             $URL .= '&return=error3';
             header("Location: {$URL}");
         } else {
-            // First, try to create Moodle course
-            try {
-                $moodleService = $container->get(MoodleService::class);
-                $courseResult = $moodleService->createCourse($name, $nameShort);
-
-                if (!$courseResult['success']) {
-                    $URL .= '&return=course_creation_failed';
-                    header("Location: {$URL}");
-                    exit();
-                }
-            } catch (Exception $e) {
-                $URL .= '&return=course_creation_failed';
-                header("Location: {$URL}");
-                exit();
-            }
-
-            // If Moodle course creation succeeded, write to database
+            //Write to database
             try {
                 $data = array('gibbonSchoolYearID' => $gibbonSchoolYearID, 'name' => $name, 'nameShort' => $nameShort, 'gibbonPersonIDTutor' => $gibbonPersonIDTutor, 'gibbonPersonIDTutor2' => $gibbonPersonIDTutor2, 'gibbonPersonIDTutor3' => $gibbonPersonIDTutor3, 'gibbonPersonIDEA' => $gibbonPersonIDEA, 'gibbonPersonIDEA2' => $gibbonPersonIDEA2, 'gibbonPersonIDEA3' => $gibbonPersonIDEA3, 'gibbonSpaceID' => $gibbonSpaceID, 'gibbonFormGroupIDNext' => $gibbonFormGroupIDNext, 'attendance' => $attendance, 'website' => $website);
                 $sql = 'INSERT INTO gibbonFormGroup SET gibbonSchoolYearID=:gibbonSchoolYearID, name=:name, nameShort=:nameShort, gibbonPersonIDTutor=:gibbonPersonIDTutor, gibbonPersonIDTutor2=:gibbonPersonIDTutor2, gibbonPersonIDTutor3=:gibbonPersonIDTutor3, gibbonPersonIDEA=:gibbonPersonIDEA, gibbonPersonIDEA2=:gibbonPersonIDEA2, gibbonPersonIDEA3=:gibbonPersonIDEA3, gibbonSpaceID=:gibbonSpaceID, gibbonFormGroupIDNext=:gibbonFormGroupIDNext, attendance=:attendance, website=:website';

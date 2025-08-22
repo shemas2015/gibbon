@@ -21,6 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use Gibbon\Forms\CustomFieldHandler;
 use Gibbon\Data\Validator;
+use Gibbon\Services\Moodle\MoodleService;
 
 include '../../gibbon.php';
 
@@ -72,7 +73,44 @@ if (isActionAccessible($guid, $connection2, '/modules/Timetable Admin/course_man
             $URL .= '&return=error3';
             header("Location: {$URL}");
         } else {
-            //Write to database
+            // Get course information for Moodle course creation
+            try {
+                $courseData = array('gibbonCourseID' => $gibbonCourseID);
+                $courseSql = 'SELECT name, nameShort FROM gibbonCourse WHERE gibbonCourseID=:gibbonCourseID';
+                $courseResult = $connection2->prepare($courseSql);
+                $courseResult->execute($courseData);
+                $course = $courseResult->fetch();
+            } catch (PDOException $e) {
+                $URL .= '&return=error2';
+                header("Location: {$URL}");
+                exit();
+            }
+
+            if (!$course) {
+                $URL .= '&return=error2';
+                header("Location: {$URL}");
+                exit();
+            }
+
+            // First, try to create Moodle course using class name
+            try {
+                $moodleService = $container->get(MoodleService::class);
+                $moodleCourseName = $course['name'] . ' - ' . $name;
+                $moodleCourseShort = $course['nameShort'] . '_' . $nameShort;
+                $courseResult = $moodleService->createCourse($moodleCourseName, $moodleCourseShort);
+
+                if (!$courseResult['success']) {
+                    $URL .= '&return=course_creation_failed';
+                    header("Location: {$URL}");
+                    exit();
+                }
+            } catch (Exception $e) {
+                $URL .= '&return=course_creation_failed';
+                header("Location: {$URL}");
+                exit();
+            }
+
+            // If Moodle course creation succeeded, write to database
             try {
                 $data = array('gibbonCourseID' => $gibbonCourseID, 'name' => $name, 'nameShort' => $nameShort, 'reportable' => $reportable, 'attendance' => $attendance, 'enrolmentMin' => $enrolmentMin, 'enrolmentMax' => $enrolmentMax, 'fields' => $fields);
                 $sql = 'INSERT INTO gibbonCourseClass SET gibbonCourseID=:gibbonCourseID, name=:name, nameShort=:nameShort, reportable=:reportable, attendance=:attendance, enrolmentMin=:enrolmentMin, enrolmentMax=:enrolmentMax, fields=:fields';
