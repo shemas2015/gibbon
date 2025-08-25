@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 use Gibbon\Data\Validator;
+use Gibbon\Services\Moodle\MoodleService;
 
 include '../../gibbon.php';
 
@@ -47,6 +48,21 @@ if ($gibbonCourseID == '' or $gibbonSchoolYearID == '' or $gibbonCourseClassID =
             $URL .= '&return=error1';
             header("Location: {$URL}");
         } else {
+            // Get course and class information for Moodle enrollment
+            $courseInfo = null;
+            try {
+                $courseData = array('gibbonCourseClassID' => $gibbonCourseClassID);
+                $courseSql = 'SELECT gc.name as courseName, gc.nameShort as courseShort, gcc.name as className, gcc.nameShort as classShort 
+                             FROM gibbonCourseClass gcc 
+                             JOIN gibbonCourse gc ON gcc.gibbonCourseID = gc.gibbonCourseID 
+                             WHERE gcc.gibbonCourseClassID = :gibbonCourseClassID';
+                $courseResult = $connection2->prepare($courseSql);
+                $courseResult->execute($courseData);
+                $courseInfo = $courseResult->fetch();
+            } catch (PDOException $e) {
+                // Continue without Moodle enrollment if course info can't be retrieved
+            }
+
             foreach ($choices as $t) {
                 //Check to see if student is already registered in this class
                 try {
@@ -57,6 +73,9 @@ if ($gibbonCourseID == '' or $gibbonSchoolYearID == '' or $gibbonCourseClassID =
                 } catch (PDOException $e) {
                     $update = false;
                 }
+
+                $enrolledInGibbon = false;
+                
                 //If student not in course, add them
                 if ($result->rowCount() == 0) {
                     try {
@@ -64,6 +83,7 @@ if ($gibbonCourseID == '' or $gibbonSchoolYearID == '' or $gibbonCourseClassID =
                         $sql = 'INSERT INTO gibbonCourseClassPerson SET gibbonPersonID=:gibbonPersonID, gibbonCourseClassID=:gibbonCourseClassID, role=:role, dateEnrolled=:dateEnrolled';
                         $result = $connection2->prepare($sql);
                         $result->execute($data);
+                        $enrolledInGibbon = true;
                     } catch (PDOException $e) {
                         $update = false;
                     }
@@ -75,8 +95,39 @@ if ($gibbonCourseID == '' or $gibbonSchoolYearID == '' or $gibbonCourseClassID =
                         $sql = 'UPDATE gibbonCourseClassPerson SET role=:role, dateEnrolled=:dateEnrolled, dateUnenrolled=NULL WHERE gibbonPersonID=:gibbonPersonID AND gibbonCourseClassID=:gibbonCourseClassID';
                         $result = $connection2->prepare($sql);
                         $result->execute($data);
+                        $enrolledInGibbon = true;
                     } catch (PDOException $e) {
                         $update = false;
+                    }
+                }
+
+                // If successfully enrolled in Gibbon and we have course info, try to enroll in Moodle
+                if ($enrolledInGibbon && $courseInfo) {
+                    try {
+                        // Get user information for Moodle enrollment
+                        $userData = array('gibbonPersonID' => $t);
+                        $userSql = 'SELECT username FROM gibbonPerson WHERE gibbonPersonID = :gibbonPersonID';
+                        $userResult = $connection2->prepare($userSql);
+                        $userResult->execute($userData);
+                        $user = $userResult->fetch();
+
+                        if ($user && !empty($user['username'])) {
+                            // Construct Moodle course shortname (same format as created in class creation)
+                            $moodleCourseShort = $courseInfo['courseShort'] . '_' . $courseInfo['classShort'];
+                            
+                            // Convert Gibbon role to Moodle role
+                            $moodleRole = ($role === 'Teacher') ? 'teacher' : 'student';
+
+                            // Try to enroll in Moodle
+                            $moodleService = $container->get(MoodleService::class);
+                            $enrollmentResult = $moodleService->enrollUserInCourse($user['username'], $moodleCourseShort, $moodleRole);
+                            
+                            // If enrollment fails, we continue silently as requested
+                            // (do nothing if user doesn't exist in Moodle)
+                        }
+                    } catch (Exception $e) {
+                        // Silently continue if Moodle enrollment fails
+                        // This covers cases where user doesn't exist in Moodle or Moodle is unavailable
                     }
                 }
             }

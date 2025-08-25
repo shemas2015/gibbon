@@ -315,8 +315,8 @@ class MoodleConnection
     public function getCourseByShortname(string $shortname): array
     {
         $params = [
-            'criteria[0][key]' => 'shortname',
-            'criteria[0][value]' => $shortname
+            'field' => 'shortname',
+            'value' => $shortname
         ];
 
         $result = $this->callWebService('core_course_get_courses_by_field', $params);
@@ -478,6 +478,174 @@ class MoodleConnection
     public function isConfigured(): bool
     {
         return !empty($this->moodleUrl) && !empty($this->moodleToken);
+    }
+
+    /**
+     * Enroll user in a course
+     *
+     * @param string $username Username to enroll
+     * @param string $courseShortname Course short name
+     * @param string $roleName Role name (student, teacher, etc.)
+     * @return array Enrollment result
+     */
+    public function enrollUserInCourse(string $username, string $courseShortname, string $roleName = 'student'): array
+    {
+        // First, get the user ID by username
+        $userResult = $this->getUserByUsername($username);
+        if (!$userResult['success']) {
+            return [
+                'success' => false,
+                'message' => 'User not found in Moodle',
+                'error' => $userResult['error'] ?? 'User lookup failed'
+            ];
+        }
+
+        // Get the course ID by shortname
+        $courseResult = $this->getCourseByShortname($courseShortname);
+        if (!$courseResult['success']) {
+            return [
+                'success' => false,
+                'message' => 'Course not found in Moodle',
+                'error' => $courseResult['error'] ?? 'Course lookup failed'
+            ];
+        }
+
+        // Get role ID by role name
+        $roleResult = $this->getRoleByShortname($roleName);
+
+
+        if (!$roleResult['success']) {
+            return [
+                'success' => false,
+                'message' => 'Role not found in Moodle',
+                'error' => $roleResult['error'] ?? 'Role lookup failed'
+            ];
+        }
+
+        // Enroll user in course
+        $params = [
+            'enrolments[0][roleid]' => $roleResult['role_id'],
+            'enrolments[0][userid]' => $userResult['user_id'],
+            'enrolments[0][courseid]' => $courseResult['course_id']
+        ];
+
+        $result = $this->callWebService('enrol_manual_enrol_users', $params);
+
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to enroll user in course',
+                'error' => $this->getLastError()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'User enrolled successfully in course',
+            'user_id' => $userResult['user_id'],
+            'course_id' => $courseResult['course_id'],
+            'role_id' => $roleResult['role_id']
+        ];
+    }
+
+    /**
+     * Get user by username
+     *
+     * @param string $username Username to look up
+     * @return array User lookup result
+     */
+    public function getUserByUsername(string $username): array
+    {
+        $criteria = [
+            [
+                'key' => 'username',
+                'value' => $username
+            ]
+        ];
+
+        $users = $this->getUsers($criteria);
+
+        if ($users === false) {
+            return [
+                'success' => false,
+                'error' => $this->getLastError()
+            ];
+        }
+
+        if (isset($users['users']) && !empty($users['users'])) {
+            return [
+                'success' => true,
+                'user_id' => $users['users'][0]['id'],
+                'user_data' => $users['users'][0]
+            ];
+        }
+
+        return [
+            'success' => false,
+            'error' => 'User not found'
+        ];
+    }
+
+    /**
+     * Get role by shortname
+     *
+     * @param string $roleName Role shortname (student, teacher, etc.)
+     * @return array Role lookup result
+     */
+    public function getRoleByShortname(string $roleName): array
+    {
+        // Use standard Moodle role IDs since core_role_get_all_roles doesn't exist
+        // These are the default role IDs in most Moodle installations
+        $standardRoles = [
+            'manager' => 1,
+            'coursecreator' => 2,
+            'editingteacher' => 3,
+            'teacher' => 4,
+            'student' => 5,
+            'guest' => 6,
+            'user' => 7,
+            'frontpage' => 8
+        ];
+
+        $roleName = strtolower($roleName);
+
+        if (isset($standardRoles[$roleName])) {
+            return [
+                'success' => true,
+                'role_id' => $standardRoles[$roleName],
+                'role_shortname' => $roleName
+            ];
+        }
+
+        // If not found in standard roles, try to get assignable roles for system context
+        // This is a fallback that may work in some Moodle configurations
+        try {
+            $params = [
+                'contextlevel' => 'system',
+                'contextinstanceid' => 0
+            ];
+            
+            $result = $this->callWebService('core_role_get_assignable_roles', $params);
+            
+            if ($result !== false && is_array($result)) {
+                foreach ($result as $roleId => $roleData) {
+                    if (isset($roleData['shortname']) && strtolower($roleData['shortname']) === $roleName) {
+                        return [
+                            'success' => true,
+                            'role_id' => $roleId,
+                            'role_data' => $roleData
+                        ];
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Fallback failed, continue to error return
+        }
+
+        return [
+            'success' => false,
+            'error' => "Role '$roleName' not found. Supported standard roles: " . implode(', ', array_keys($standardRoles))
+        ];
     }
 
     /**

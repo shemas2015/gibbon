@@ -264,4 +264,25 @@ class MoodleService
 
         return $result;
     }
+
+    /**
+     * Enroll user in a Moodle course
+     *
+     * @param string $username Username to enroll
+     * @param string $courseShortname Course short name
+     * @param string $roleName Role name (student, teacher, etc.)
+     * @return array Enrollment result
+     */
+    public function enrollUserInCourse(string $username, string $courseShortname, string $roleName = 'student'): array
+    {
+        try {
+            return $this->connection->enrollUserInCourse($username, $courseShortname, $roleName);
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Exception during user enrollment',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }
