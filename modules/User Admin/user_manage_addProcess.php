@@ -145,7 +145,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage_add
         }
 
         if ($result->rowCount() > 0) {
-            $URL .= '&return=error3';
+            $URL .= '&return=user_exists_in_system';
             header("Location: {$URL}");
         } else {
             //Check passwords for match

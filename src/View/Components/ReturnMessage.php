@@ -82,6 +82,7 @@ class ReturnMessage
             'user_already_exists' => __('User already exists in Moodle with this username or email.'),
             'user_permission_denied' => __('Permission denied to create user in Moodle.'),
             'user_invalid_data' => __('Invalid user data provided for Moodle user creation.'),
+            'user_exists_in_system' => __('Your request failed because a user with this username or student ID already exists in the system.'),
             'user_invalid_password' => __('Password does not meet Moodle requirements (must have special characters).'),
 
             //Warnings

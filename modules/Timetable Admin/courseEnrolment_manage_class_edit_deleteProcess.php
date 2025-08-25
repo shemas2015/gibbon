@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Services\Moodle\MoodleService;
+
 include '../../gibbon.php';
 
 $gibbonCourseClassID = $_POST['gibbonCourseClassID'] ?? '';
@@ -57,7 +59,34 @@ if ($gibbonCourseClassID == '' or $gibbonCourseID == '' or $gibbonSchoolYearID =
                 $URL .= '&return=error2';
                 header("Location: {$URL}");
             } else {
-                //Write to database
+
+                $row = $result->fetch();
+                
+                // Try to unenroll from Moodle before deleting from Gibbon
+                try {
+                    // Get user information for Moodle unenrollment
+                    $userData = array('gibbonPersonID' => $row['gibbonPersonID']);
+                    $userSql = 'SELECT username FROM gibbonPerson WHERE gibbonPersonID = :gibbonPersonID';
+                    $userResult = $connection2->prepare($userSql);
+                    $userResult->execute($userData);
+                    $user = $userResult->fetch();
+
+                    if ($user && !empty($user['username'])) {
+                        // Construct Moodle course shortname (same format as used in enrollment)
+                        $moodleCourseShort = $row['courseNameShort'] . '_' . $row['nameShort'];
+                        
+                        // Try to unenroll from Moodle
+                        $moodleService = $container->get(MoodleService::class);
+                        $unenrollmentResult = $moodleService->unenrollUserFromCourse($user['username'], $moodleCourseShort);
+                        
+                        // Continue silently regardless of Moodle unenrollment success/failure
+                        // (user might not exist in Moodle or Moodle might be unavailable)
+                    }
+                } catch (Exception $e) {
+                    // Silently continue if Moodle unenrollment fails
+                    // This ensures the Gibbon deletion can still proceed
+                }
+                
                 try {
                     $data = array('gibbonCourseClassID' => $gibbonCourseClassID, 'gibbonCourseClassPersonID' => $gibbonCourseClassPersonID);
                     $sql = 'DELETE FROM gibbonCourseClassPerson WHERE gibbonCourseClassID=:gibbonCourseClassID AND gibbonCourseClassPersonID=:gibbonCourseClassPersonID';

@@ -549,6 +549,59 @@ class MoodleConnection
     }
 
     /**
+     * Unenroll user from a course
+     *
+     * @param string $username Username to unenroll
+     * @param string $courseShortname Course short name
+     * @return array Unenrollment result
+     */
+    public function unenrollUserFromCourse(string $username, string $courseShortname): array
+    {
+        // First, get the user ID by username
+        $userResult = $this->getUserByUsername($username);
+        if (!$userResult['success']) {
+            return [
+                'success' => false,
+                'message' => 'User not found in Moodle',
+                'error' => $userResult['error'] ?? 'User lookup failed'
+            ];
+        }
+
+        // Get the course ID by shortname
+        $courseResult = $this->getCourseByShortname($courseShortname);
+        if (!$courseResult['success']) {
+            return [
+                'success' => false,
+                'message' => 'Course not found in Moodle',
+                'error' => $courseResult['error'] ?? 'Course lookup failed'
+            ];
+        }
+
+        // Unenroll user from course
+        $params = [
+            'enrolments[0][userid]' => $userResult['user_id'],
+            'enrolments[0][courseid]' => $courseResult['course_id']
+        ];
+
+        $result = $this->callWebService('enrol_manual_unenrol_users', $params);
+
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to unenroll user from course',
+                'error' => $this->getLastError()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'User unenrolled successfully from course',
+            'user_id' => $userResult['user_id'],
+            'course_id' => $courseResult['course_id']
+        ];
+    }
+
+    /**
      * Get user by username
      *
      * @param string $username Username to look up

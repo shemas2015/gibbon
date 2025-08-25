@@ -285,4 +285,24 @@ class MoodleService
             ];
         }
     }
+
+    /**
+     * Unenroll user from a Moodle course
+     *
+     * @param string $username Username to unenroll
+     * @param string $courseShortname Course short name
+     * @return array Unenrollment result
+     */
+    public function unenrollUserFromCourse(string $username, string $courseShortname): array
+    {
+        try {
+            return $this->connection->unenrollUserFromCourse($username, $courseShortname);
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Exception during user unenrollment',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }
