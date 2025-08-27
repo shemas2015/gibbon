@@ -715,4 +715,52 @@ class MoodleConnection
             'url' => $this->moodleUrl,
         ];
     }
+
+    /**
+     * Get future calendar events for specific courses
+     *
+     * @param array $courseIds Array of course IDs
+     * @param int $timeStart Unix timestamp for start time (default: now)
+     * @param int $timeEnd Unix timestamp for end time (default: 1 year from now)
+     * @return array Calendar events result
+     */
+    public function getCalendarEvents(array $courseIds, int $timeStart = null, int $timeEnd = null): array
+    {
+        if ($timeStart === null) {
+            $timeStart = time();
+        }
+        if ($timeEnd === null) {
+            $timeEnd = strtotime('+1 year');
+        }
+
+        $params = [
+            'options[timestart]' => $timeStart,
+            'options[timeend]' => $timeEnd,
+            'options[userevents]' => 0,
+            'options[siteevents]' => 0,
+        ];
+
+        // Add course IDs to the parameters
+        foreach ($courseIds as $index => $courseId) {
+            $params["events[courseids][$index]"] = $courseId;
+        }
+
+        $result = $this->callWebService('core_calendar_get_calendar_events', $params);
+
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to retrieve calendar events',
+                'error' => $this->getLastError(),
+                'events' => []
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Calendar events retrieved successfully',
+            'events' => $result['events'] ?? [],
+            'warnings' => $result['warnings'] ?? []
+        ];
+    }
 }

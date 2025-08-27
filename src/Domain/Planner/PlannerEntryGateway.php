@@ -24,6 +24,9 @@ namespace Gibbon\Domain\Planner;
 use Gibbon\Domain\Traits\TableAware;
 use Gibbon\Domain\QueryCriteria;
 use Gibbon\Domain\QueryableGateway;
+use Gibbon\Domain\DataSet;
+use Gibbon\Services\Moodle\MoodleService;
+use Gibbon\Domain\Timetable\CourseEnrolmentGateway;
 
 /**
  * Planner Entry Gateway
@@ -148,7 +151,42 @@ class PlannerEntryGateway extends QueryableGateway
             $query->having('(role = "Teacher")');
         }
 
-        return $this->runQuery($query, $criteria);
+        // Get Gibbon results first
+        $result = $this->runQuery($query, $criteria);
+
+        // Try to get Moodle activities and append them
+        try {
+            // Get all classes the user is enrolled in using existing CourseEnrolmentGateway
+            $courseNames = [];
+            $data = ['gibbonPersonID' => $gibbonPersonID];
+
+            $sql = 'select CONCAT(c.nameShort,"_", cc.nameShort ) as class_name from gibbonCourseClassPerson as cp 
+                        inner join gibbonCourseClass cc on cc.gibbonCourseClassID = cp.gibbonCourseClassID
+                        inner join gibbonCourse c on c.gibbonCourseID = cc.gibbonCourseID
+                    where cp.gibbonPersonID = :gibbonPersonID;';
+            
+            $classes = $this->db()->select($sql, $data)->fetchAll();
+
+            if(sizeof($classes) > 0){
+                $courseNames = array_column($classes, 'class_name');
+            }
+            else
+            {
+                $courseNames = [];
+            }            
+
+            $moodleActivitiesData = $this->getMoodleActivitiesForDate($date, !empty($gibbonPersonID) ? $viewingAs : 'Student', $courseNames);
+            if (!empty($moodleActivitiesData)) {
+                $moodleActivities = new DataSet($moodleActivitiesData);
+                $result->append($moodleActivities);
+            }
+        } catch (\Exception $e) {
+            // Silently fail if Moodle integration is not available
+            // This ensures Gibbon continues to work even if Moodle is down
+        }
+
+        return $result;
+
     }
 
     public function queryPlannerTimeSlotsByClass($criteria, $gibbonSchoolYearID, $gibbonCourseClassID)
@@ -650,5 +688,67 @@ class PlannerEntryGateway extends QueryableGateway
         $sql .= " ORDER BY date, timeStart LIMIT 1";
 
         return $this->db()->selectOne($sql, $data);
+    }
+
+    /**
+     * Get Moodle activities for a specific date
+     *
+     * @param string $date Date in Y-m-d format
+     * @param string $role User role (Student, Teacher, Parent)
+     * @param array $courseNames Array of course names to lookup in Moodle
+     * @return array Array of Moodle activities in Gibbon format
+     */
+    private function getMoodleActivitiesForDate(string $date, string $role = 'Student', array $courseNames = []): array
+    {
+        try {
+            // Get Moodle service from container
+            global $container;
+            if (!isset($container)) {
+                return [];
+            }
+
+            $moodleService = $container->get(MoodleService::class);
+            
+            // Get Moodle course IDs by course names
+            $moodleCourseIds = [];
+            if (!empty($courseNames)) {
+                // Get MoodleConnection to use getCourseByShortname
+                $moodleConnection = $container->get(\Gibbon\Services\Moodle\MoodleConnection::class);
+                
+                foreach ($courseNames as $courseName) {
+                    $courseResult = $moodleConnection->getCourseByShortname($courseName);
+                    
+                    if ($courseResult['success'] && isset($courseResult['course_id'])) {
+                        $moodleCourseIds[] = $courseResult['course_id'];
+                    }
+                }
+            }
+
+            // Set time range for the specific date
+            $dayStart = strtotime($date . ' 00:00:00');
+            
+            // Get future activities from Moodle (only using timestart, no end time)
+            $activitiesResult = $moodleService->getFutureActivities($moodleCourseIds, $dayStart);
+            
+            
+            
+            if (!$activitiesResult['success'] || empty($activitiesResult['activities'])) {
+                return [];
+            }
+            
+            // Transform Moodle events to Gibbon format
+            // Use a default course class ID - in production this should be mapped properly
+            $defaultGibbonCourseClassID = 2594; // This should be dynamically determined
+            
+            return $moodleService->transformEventsToGibbonFormat(
+                $activitiesResult['activities'], 
+                $defaultGibbonCourseClassID, 
+                $role
+            );
+            
+        } catch (\Exception $e) {
+            // Return empty array on any error to ensure Gibbon continues working
+            return [];
+        }
     }
 }

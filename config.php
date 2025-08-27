@@ -23,9 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * Sets the database connection information.
  * You can supply an optional $databasePort if your server requires one.
  */
-$databaseServer = '5.161.61.25';
+//$databaseServer = '5.161.61.25';
+//$databaseUsername = 'root';
+//$databasePassword = 'ill8a6X2wO7zcBf';
+//$databaseName = 'sis_aquinas';
+
+
+$databaseServer = '127.0.0.1';
 $databaseUsername = 'root';
-$databasePassword = 'ill8a6X2wO7zcBf';
+$databasePassword = 'root';
 $databaseName = 'sis_aquinas';
 
 /**

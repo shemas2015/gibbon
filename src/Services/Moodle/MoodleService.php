@@ -305,4 +305,115 @@ class MoodleService
             ];
         }
     }
+
+    /**
+     * Get future activities (calendar events) from Moodle courses
+     *
+     * @param array $courseIds Array of Moodle course IDs
+     * @param int $timeStart Unix timestamp for start time (default: now)
+     * @param int $timeEnd Unix timestamp for end time (default: 1 year from now)
+     * @return array Future activities result
+     */
+    public function getFutureActivities(array $courseIds, int $timeStart = null, int $timeEnd = null): array
+    {
+        try {
+            $result = $this->connection->getCalendarEvents($courseIds, $timeStart, $timeEnd);
+            
+            if (!$result['success']) {
+                return $result;
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Future activities retrieved successfully',
+                'activities' => $result['events'],
+                'warnings' => $result['warnings'] ?? []
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Exception during future activities retrieval',
+                'error' => $e->getMessage(),
+                'activities' => []
+            ];
+        }
+    }
+
+    /**
+     * Transform Moodle calendar events to Gibbon planner format
+     *
+     * @param array $moodleEvents Array of Moodle calendar events
+     * @param int $gibbonCourseClassID Gibbon course class ID to associate with
+     * @param string $role User role (Student, Teacher, etc.)
+     * @return array Array of events in Gibbon format
+     */
+    public function transformEventsToGibbonFormat(array $moodleEvents, int $gibbonCourseClassID, string $role = 'Student'): array
+    {
+        $gibbonEvents = [];
+
+        foreach ($moodleEvents as $event) {
+            // Convert Unix timestamp to date and time
+            $eventDate = date('Y-m-d', $event['timestart']);
+            $eventTime = date('H:i:s', $event['timestart']);
+            
+            // Calculate end time (if duration is provided)
+            $endTime = $event['timeduration'] > 0 
+                ? date('H:i:s', $event['timestart'] + $event['timeduration']) 
+                : date('H:i:s', $event['timestart'] + 3600); // Default 1 hour duration
+
+            // Map Moodle event to Gibbon format
+            $gibbonEvents[] = [
+                'gibbonPlannerEntryID' => 'moodle_' . $event['id'], // Prefix to avoid conflicts
+                'summary' => $event['description'] ?: 'FROM MOODLE: ' . $event['name'],
+                'gibbonUnitID' => null,
+                'unit' => null,
+                'gibbonCourseClassID' => $gibbonCourseClassID,
+                'course' => $event['courseid'] ?? null,
+                'class' => 'MOODLE',
+                'lesson' => $event['name'],
+                'timeStart' => $eventTime,
+                'timeEnd' => $endTime,
+                'viewableStudents' => 'Y',
+                'viewableParents' => 'Y',
+                'homework' => $this->determineHomeworkStatus($event),
+                'homeworkSubmission' => $this->determineSubmissionStatus($event),
+                'homeworkCrowdAssess' => 'N',
+                'date' => $eventDate,
+                'teacherIDs' => null,
+                'role' => $role,
+                'myHomeworkDueDateTime' => $event['timeduration'] > 0 ? date('Y-m-d H:i:s', $event['timestart'] + $event['timeduration']) : null,
+                'gibbonTTDayRowClassID' => null
+            ];
+        }
+
+        return $gibbonEvents;
+    }
+
+    /**
+     * Determine if Moodle event should be considered homework
+     *
+     * @param array $event Moodle event data
+     * @return string 'Y' or 'N'
+     */
+    private function determineHomeworkStatus(array $event): string
+    {
+        $homeworkTypes = ['assign', 'quiz', 'workshop', 'forum'];
+        $eventType = $event['modulename'] ?? '';
+        
+        return in_array($eventType, $homeworkTypes) ? 'Y' : 'N';
+    }
+
+    /**
+     * Determine if Moodle event requires submission
+     *
+     * @param array $event Moodle event data
+     * @return string 'Y' or 'N'
+     */
+    private function determineSubmissionStatus(array $event): string
+    {
+        $submissionTypes = ['assign', 'workshop'];
+        $eventType = $event['modulename'] ?? '';
+        
+        return in_array($eventType, $submissionTypes) ? 'Y' : 'N';
+    }
 }
