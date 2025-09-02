@@ -178,7 +178,7 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage_add
 
     $row = $form->addRow();
         $emailLabel = $row->addLabel('email', __('Email'));
-        $email = $row->addEmail('email');
+        $email = $row->addEmail('email')->required();
 
     $settingGateway = $container->get(SettingGateway::class);
 

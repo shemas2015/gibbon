@@ -27,6 +27,38 @@ include '../../gibbon.php';
 
 $_POST = $container->get(Validator::class)->sanitize($_POST, ['notes' => 'HTML']);
 
+/**
+ * Calculate the incremented date based on period and payment number
+ */
+function calculateIncrementedDate($startDate, $period, $paymentNumber) {
+    if (empty($startDate) || empty($period) || $paymentNumber <= 1) {
+        return $startDate;
+    }
+    try {
+        $date = new DateTime($startDate);
+        $increment = $paymentNumber - 1; // First payment uses original date
+        
+        switch ($period) {
+            case 'weekly':
+                $date->modify('+' . ($increment * 7) . ' days');
+                break;
+            case 'monthly':
+                $date->modify('+' . $increment . ' months');
+                break;
+            case 'quarterly':
+                $date->modify('+' . ($increment * 3) . ' months');
+                break;
+            case 'semiannually':
+                $date->modify('+' . ($increment * 6) . ' months');
+                break;
+        }
+        
+        return $date->format('Y-m-d');
+    } catch (Exception $e) {
+        return $startDate; // Return original date if calculation fails
+    }
+}
+
 $gibbonSchoolYearID = $_GET['gibbonSchoolYearID'] ?? '';
 $status = $_GET['status'] ?? '';
 $gibbonFinanceInvoiceeID = $_GET['gibbonFinanceInvoiceeID'] ?? '';
@@ -67,6 +99,21 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
             $randStrGenerator = new PasswordPolicy(true, true, false, 40);
 
             //PROCESS FEES
+            // Validate that fees with multiple payments have required startDate and period
+            foreach ($order as $fee) {
+                $numPayments = (int)($_POST['numberPayments'.$fee] ?? 1);
+                if ($numPayments > 1) {
+                    $startDate = $_POST['startDate'.$fee] ?? '';
+                    $period = $_POST['period'.$fee] ?? '';
+                    
+                    if (empty($startDate) || empty($period)) {
+                        $URL .= '&return=error12_1';
+                        header("Location: {$URL}");
+                        exit();
+                    }
+                }
+            }
+
             $fees = array();
             $idx = 1;
             foreach ($order as $fee) {
@@ -78,7 +125,9 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                         'fee' => $numPayments > 1 ? ($_POST['unitValue'.$fee] ?? '') : ($_POST['fee'.$fee] ?? ''),
                         'feeType' => $_POST['feeType'.$fee] ?? '',
                         'gibbonFinanceFeeID' => $_POST['gibbonFinanceFeeID'.$fee] ?? '',
-                        'description' => $_POST['description'.$fee] ?? ''
+                        'description' => $_POST['description'.$fee] ?? '',
+                        'startDate' => calculateIncrementedDate($_POST['startDate'.$fee] ?? '', $_POST['period'.$fee] ?? '', $i),
+                        'period' => $_POST['period'.$fee] ?? ''
                     ];
                     $idx++;
                 }
@@ -210,7 +259,9 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                                         $thisInvoiceFailed = true;
                                     }
 
+
                                     $AI = $connection2->lastInsertID();
+                                    
 
                                     if ($thisInvoiceFailed == false) {
                                         //Add fees to invoice
@@ -219,12 +270,35 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                                             ++$count;
                                             if ($invoiceTo == 'Family' or ($invoiceTo == 'Company' and $companyAll == 'N' and strpos($gibbonFinanceFeeCategoryIDList2, $fee['gibbonFinanceFeeCategoryID']) === false)) {
                                                 try {
-                                                    if ($fee['feeType'] == 'Standard') {
+                                                    if ($fee['feeType'] == 'Standard' && $numPayments < 2 ) {
                                                         $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $AI, 'feeType' => $fee['feeType'], 'gibbonFinanceFeeID' => $fee['gibbonFinanceFeeID'], 'count' => $count);
                                                         $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, gibbonFinanceFeeID=:gibbonFinanceFeeID, separated='N', sequenceNumber=:count";
                                                     } else {
-                                                        $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $AI, 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'count' => $count);
-                                                        $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, sequenceNumber=:count";
+                                                        // Data of insert statement
+                                                        $dataInvoiceFee = array(
+                                                            'gibbonFinanceInvoiceID' => $AI, 
+                                                            'feeType' => $fee['feeType'], 
+                                                            'name' => $fee['name'], 
+                                                            'description' => $fee['description'], 
+                                                            'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 
+                                                            'fee' => $fee['fee'], 
+                                                            'startDate' => $fee['startDate'], 
+                                                            'period' => $fee['period'], 
+                                                            'count' => $count
+                                                        );
+
+                                                        // Insert statement
+                                                        $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET 
+                                                            gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, 
+                                                            feeType=:feeType, 
+                                                            name=:name, 
+                                                            description=:description, 
+                                                            gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, 
+                                                            fee=:fee, 
+                                                            startDate=:startDate, 
+                                                            period=:period, 
+                                                            sequenceNumber=:count";
+                                                            
                                                     }
                                                     $resultInvoiceFee = $connection2->prepare($sqlInvoiceFee);
                                                     $resultInvoiceFee->execute($dataInvoiceFee);
@@ -248,8 +322,8 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                                                 $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $rowInvoice['gibbonFinanceInvoiceID'], 'feeType' => $fee['feeType'], 'gibbonFinanceFeeID' => $fee['gibbonFinanceFeeID'], 'count' => $count);
                                                 $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, gibbonFinanceFeeID=:gibbonFinanceFeeID, separated='N', sequenceNumber=:count";
                                             } else {
-                                                $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $rowInvoice['gibbonFinanceInvoiceID'], 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'count' => $count);
-                                                $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, sequenceNumber=:count";
+                                                $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $rowInvoice['gibbonFinanceInvoiceID'], 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'startDate' => $fee['startDate'], 'period' => $fee['period'], 'count' => $count);
+                                                $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, startDate=:startDate, period=:period, sequenceNumber=:count";
                                             }
                                             $resultInvoiceFee = $connection2->prepare($sqlInvoiceFee);
                                             $resultInvoiceFee->execute($dataInvoiceFee);
@@ -281,7 +355,6 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                                 }
                             }
                         }
-
                         //CHECK FOR INVOICE AND UPDATE/ADD FOR COMPANY
                         if (($invoiceTo == 'Company' and $companyAll == 'Y') or ($invoiceTo == 'Company' and $companyAll == 'N' and $companyFamilyCompanyHasCharges == true)) {
                             $thisInvoiceFailed = false;
@@ -353,8 +426,8 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                                                         $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $AI, 'feeType' => $fee['feeType'], 'gibbonFinanceFeeID' => $fee['gibbonFinanceFeeID'], 'count' => $count);
                                                         $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, gibbonFinanceFeeID=:gibbonFinanceFeeID, separated='N', sequenceNumber=:count";
                                                     } else {
-                                                        $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $AI, 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'count' => $count);
-                                                        $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, sequenceNumber=:count";
+                                                        $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $AI, 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'startDate' => $fee['startDate'], 'period' => $fee['period'], 'count' => $count);
+                                                        $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, startDate=:startDate, period=:period, sequenceNumber=:count";
                                                     }
                                                     $resultInvoiceFee = $connection2->prepare($sqlInvoiceFee);
                                                     $resultInvoiceFee->execute($dataInvoiceFee);
@@ -378,8 +451,8 @@ if ($gibbonSchoolYearID == '') { echo 'Fatal error loading this page!';
                                                 $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $rowInvoice['gibbonFinanceInvoiceID'], 'feeType' => $fee['feeType'], 'gibbonFinanceFeeID' => $fee['gibbonFinanceFeeID'], 'count' => $count);
                                                 $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, gibbonFinanceFeeID=:gibbonFinanceFeeID, separated='N', sequenceNumber=:count";
                                             } else {
-                                                $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $rowInvoice['gibbonFinanceInvoiceID'], 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'count' => $count);
-                                                $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, sequenceNumber=:count";
+                                                $dataInvoiceFee = array('gibbonFinanceInvoiceID' => $rowInvoice['gibbonFinanceInvoiceID'], 'feeType' => $fee['feeType'], 'name' => $fee['name'], 'description' => $fee['description'], 'gibbonFinanceFeeCategoryID' => $fee['gibbonFinanceFeeCategoryID'], 'fee' => $fee['fee'], 'startDate' => $fee['startDate'], 'period' => $fee['period'], 'count' => $count);
+                                                $sqlInvoiceFee = "INSERT INTO gibbonFinanceInvoiceFee SET gibbonFinanceInvoiceID=:gibbonFinanceInvoiceID, feeType=:feeType, name=:name, description=:description, gibbonFinanceFeeCategoryID=:gibbonFinanceFeeCategoryID, fee=:fee, startDate=:startDate, period=:period, sequenceNumber=:count";
                                             }
                                             $resultInvoiceFee = $connection2->prepare($sqlInvoiceFee);
                                             $resultInvoiceFee->execute($dataInvoiceFee);

@@ -57,7 +57,7 @@ if (isActionAccessible($guid, $connection2, '/modules/School Admin/schoolYear_ma
           ->format(Format::using('dateRange', ['firstDay', 'lastDay']))
           ->sortable(['firstDay', 'lastDay']);
     $table->addColumn('status', __('Status'))->translatable();
-        
+
     // ACTIONS
     $table->addActionColumn()
         ->addParam('gibbonSchoolYearID')

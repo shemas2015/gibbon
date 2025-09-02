@@ -343,6 +343,19 @@ class DataSet implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Append another data set to this data set, adding all rows without index conflicts.
+     *
+     * @param DataSet $newData
+     * @return self
+     */
+    public function append(DataSet $newData)
+    {
+        $this->data = array_merge($this->data, $newData->getData());
+        $this->setResultCount();
+        return $this;
+    }
+
+    /**
      * Prepare data to be displayed in a table.
      *
      * @param callable $callable
@@ -357,5 +370,10 @@ class DataSet implements \Countable, \IteratorAggregate
                 if (is_string($innerItem)) $innerItem = strip_tags($innerItem, '<br>');
             });
         });
+    }
+
+    public function getData()
+    {
+        return $this->data;
     }
 }

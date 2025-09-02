@@ -24,6 +24,7 @@ use Gibbon\Services\Format;
 use Gibbon\Forms\Form;
 use Gibbon\Tables\DataTable;
 use Gibbon\Domain\User\UserGateway;
+use Gibbon\Services\Moodle\MoodleService;
 
 if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage.php') == false) {
     // Access denied
@@ -72,10 +73,20 @@ if (isActionAccessible($guid, $connection2, '/modules/User Admin/user_manage.php
     $table = DataTable::createPaginated('userManage', $criteria);
     $table->setTitle(__('View'));
 
-    $table->addHeaderAction('add', __('Add'))
-        ->setURL('/modules/User Admin/user_manage_add.php')
-        ->addParam('search', $search)
-        ->displayLabel();
+    // Check Moodle connection status before showing Add button
+    try {
+        $moodleService = $container->get(MoodleService::class);
+        $connectionStatus = $moodleService->getConnectionStatus();
+        
+        if ($connectionStatus['connected']) {
+            $table->addHeaderAction('add', __('Add'))
+                ->setURL('/modules/User Admin/user_manage_add.php')
+                ->addParam('search', $search)
+                ->displayLabel();
+        }
+    } catch (Exception $e) {
+        // If Moodle service is not available, don't show the Add button
+    }
 
     $table->addMetaData('filterOptions', [
         'role:student'    => __('Role').': '.__('Student'),

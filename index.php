@@ -431,6 +431,25 @@ if ($maintenanceMode == 'Y') {
     }
 }
 
+
+// Moodle Connection Check
+if ($isLoggedIn) {
+    try {
+        $moodleService = $container->get(\Gibbon\Services\Moodle\MoodleService::class);
+        $moodleStatus = $moodleService->getConnectionStatus();
+
+        // Lock system for all users if Moodle is not configured or not connected
+        if (!$moodleStatus['fully_configured'] || !$moodleStatus['connected']) {
+            $page->addError(__('No moodle conection.'));
+        }
+    } catch (Exception $e) {
+        die(print_r($e));
+        // Lock system if Moodle service is not available
+        $page->addError('<b>'.__('System Locked').'</b>: '.__('Moodle service is not available. Please contact system administrator.'));
+        exit();
+    }
+}
+
 // Cookie Consent
 if ($isLoggedIn) {
     if (!empty($_GET['cookieConsent'])) {

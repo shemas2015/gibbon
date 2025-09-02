@@ -26,6 +26,7 @@ use Gibbon\Forms\CustomFieldHandler;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Domain\Timetable\CourseGateway;
 use Gibbon\Http\Url;
+use Gibbon\Services\Moodle\MoodleService;
 
 //Module includes
 require_once __DIR__ . '/moduleFunctions.php';
@@ -145,12 +146,22 @@ if (isActionAccessible($guid, $connection2, '/modules/Timetable Admin/course_man
             // DATA TABLE
             $table = DataTable::create('courseClassManage');
 
-            $table->addHeaderAction('add', __('Add'))
-                ->setURL('/modules/Timetable Admin/course_manage_class_add.php')
-                ->addParam('gibbonSchoolYearID', $values['gibbonSchoolYearID'])
-                ->addParam('gibbonCourseID', $gibbonCourseID)
-                ->addParam('search', $search)
-                ->displayLabel();
+            // Check Moodle connection status before showing Add button
+            try {
+                $moodleService = $container->get(MoodleService::class);
+                $connectionStatus = $moodleService->getConnectionStatus();
+                
+                if ($connectionStatus['connected']) {
+                    $table->addHeaderAction('add', __('Add'))
+                        ->setURL('/modules/Timetable Admin/course_manage_class_add.php')
+                        ->addParam('gibbonSchoolYearID', $values['gibbonSchoolYearID'])
+                        ->addParam('gibbonCourseID', $gibbonCourseID)
+                        ->addParam('search', $search)
+                        ->displayLabel();
+                }
+            } catch (Exception $e) {
+                // If Moodle service is not available, don't show the Add button
+            }
 
             $table->addColumn('nameShort', __('Short Name'));
             $table->addColumn('name', __('Name'));
