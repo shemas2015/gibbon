@@ -119,10 +119,11 @@ TODO: add template variable details.
 
                     {% if isLoggedIn %}
                         <div class="menu-mobile block md:hidden p-4 flex justify-center items-center" style="background: #f5f7fa;">
-                            <div id="finderTray" class=""">
+                            <div id="finderTray" class="js-mobile-finder-tray">
                                 {{ include('finder.twig.html') }}
                             </div>             
                         </div>
+
                         
 
                         {% if deleted %}
@@ -405,6 +406,7 @@ TODO: add template variable details.
                 });
                 });
             </script>  
+
 
 
         {% else %}

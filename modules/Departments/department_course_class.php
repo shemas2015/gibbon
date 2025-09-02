@@ -142,13 +142,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Departments/department_cou
                 $table->setTitle($row['courseLong']." - ".$row['classLong']);
                 $table->setDescription(Format::courseClassName($row['course'], $row['class']));
 
-                $table->addMetaData('gridClass', 'rounded-md bg-gray-100 border py-4 gap-6 sm:flex-nowrap justify-around');
-                $table->addMetaData('gridItemClass', 'w-24 sm:flex-1 text-center text-gray-500 hover:text-gray-700');
+                $table->addMetaData('gridClass', 'rounded-md py-4 gap-6 lg:gap-2 sm:flex-nowrap justify-around grid-item-department-container');
+                $table->addMetaData('gridItemClass', 'flex-row text-center text-gray-500 hover:text-gray-700 grid-item-department-btn');
                 $table->addMetaData('hidePagination', true);
 
                 $table->addColumn('icon')
                     ->format(function ($menu) {
-                        return Format::link($menu['url'], icon('solid', $menu['icon'], 'size-8 sm:size-12'), ['class' => 'no-underline text-inherit']);
+                        return Format::link($menu['url'], icon('solid', $menu['icon'], 'size-6'), ['class' => 'no-underline text-inherit']);
                     });
 
                 $table->addColumn('name')

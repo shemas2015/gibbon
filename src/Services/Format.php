@@ -1016,7 +1016,7 @@ class Format
     public static function userPhoto($path, $size = 75, $class = '')
     {
         // $class .= ' inline-block shadow bg-white border border-gray-600 ';
-        $class .= ' inline-block bg-white rounded-full object-cover ';
+        $class .= ' inline-block bg-white object-cover ';
 
         switch ($size) {
             case 240:
@@ -1048,7 +1048,7 @@ class Format
             $path = '/themes/'.static::$settings['gibbonThemeName'].'/img/anonymous_'.$imageSize.'.jpg';
         }
 
-        return sprintf('<img style="object-fit:cover;height:6rem; width:6rem;" class="%1$s" src="%2$s">', $class, static::$settings['absoluteURL'].'/'.$path);
+        return sprintf('<img style="object-fit:cover;height:6rem; width:6rem;border-radius:0;" class="%1$s" src="%2$s">', $class, static::$settings['absoluteURL'].'/'.$path);
     }
 
     /**
