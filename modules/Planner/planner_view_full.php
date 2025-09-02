@@ -93,6 +93,30 @@ if (isActionAccessible($guid, $connection2, '/modules/Planner/planner_view_full.
             echo __('The selected record does not exist, or you do not have access to it.');
             echo '</div>';
         }
+        //Check if this is a Moodle activity and redirect to Moodle
+        elseif (strpos($gibbonPlannerEntryID, 'moodle_') === 0) {
+            try {
+                $moodleService = $container->get(\Gibbon\Services\Moodle\MoodleService::class);
+                $currentUsername = $session->get('username');
+                
+                $loginResult = $moodleService->requestLoginUrl($currentUsername);
+                
+                if ($loginResult['success'] && !empty($loginResult['loginurl'])) {
+                    echo '<script type="text/javascript">';
+                    echo 'window.location.href = "' . htmlspecialchars($loginResult['loginurl'], ENT_QUOTES, 'UTF-8') . '";';
+                    echo '</script>';
+                    exit();
+                } else {
+                    echo "<div class='error'>";
+                    echo __('Failed to redirect to Moodle. Please try accessing Moodle directly.');
+                    echo '</div>';
+                }
+            } catch (\Exception $e) {
+                echo "<div class='error'>";
+                echo __('Error connecting to Moodle: {error}', ['error' => $e->getMessage()]);
+                echo '</div>';
+            }
+        }
         //Check existence of and access to this class.
         else {
             $data = array();

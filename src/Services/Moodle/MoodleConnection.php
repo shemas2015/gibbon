@@ -763,4 +763,42 @@ class MoodleConnection
             'warnings' => $result['warnings'] ?? []
         ];
     }
+
+    /**
+     * Request a login URL for automatic user login to Moodle
+     *
+     * @param string $username Username for login URL
+     * @return array Login URL result
+     */
+    public function requestLoginUrl(string $username): array
+    {
+        if (!$this->isConfigured()) {
+            return [
+                'success' => false,
+                'message' => 'Moodle connection not configured',
+                'loginurl' => null
+            ];
+        }
+
+        $params = [
+            'user[username]' => $username
+        ];
+
+        $result = $this->callWebService('auth_userkey_request_login_url', $params);
+        
+        if ($result === false) {
+            return [
+                'success' => false,
+                'message' => 'Failed to request login URL',
+                'error' => $this->getLastError(),
+                'loginurl' => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Login URL requested successfully',
+            'loginurl' => $result['loginurl'] ?? null
+        ];
+    }
 }

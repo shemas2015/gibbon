@@ -347,7 +347,7 @@ class MoodleService
      * @param string $role User role (Student, Teacher, etc.)
      * @return array Array of events in Gibbon format
      */
-    public function transformEventsToGibbonFormat(array $moodleEvents, int $gibbonCourseClassID, string $role = 'Student'): array
+    public function transformEventsToGibbonFormat(array $moodleEvents,  string $role = 'Student'): array
     {
         $gibbonEvents = [];
 
@@ -367,7 +367,7 @@ class MoodleService
                 'summary' => $event['description'] ?: 'FROM MOODLE: ' . $event['name'],
                 'gibbonUnitID' => null,
                 'unit' => null,
-                'gibbonCourseClassID' => $gibbonCourseClassID,
+                'gibbonCourseClassID' => null,
                 'course' => $event['courseid'] ?? null,
                 'class' => 'MOODLE',
                 'lesson' => $event['name'],
@@ -415,5 +415,24 @@ class MoodleService
         $eventType = $event['modulename'] ?? '';
         
         return in_array($eventType, $submissionTypes) ? 'Y' : 'N';
+    }
+
+    /**
+     * Request a login URL from Moodle for a specific user
+     *
+     * @param string $username Username to generate login URL for
+     * @return array Login URL result
+     */
+    public function requestLoginUrl(string $username): array
+    {
+        try {
+            return $this->connection->requestLoginUrl($username);
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Exception during login URL request',
+                'error' => $e->getMessage()
+            ];
+        }
     }
 }

@@ -731,7 +731,6 @@ class PlannerEntryGateway extends QueryableGateway
             $activitiesResult = $moodleService->getFutureActivities($moodleCourseIds, $dayStart);
             
             
-            
             if (!$activitiesResult['success'] || empty($activitiesResult['activities'])) {
                 return [];
             }
@@ -742,7 +741,6 @@ class PlannerEntryGateway extends QueryableGateway
             
             return $moodleService->transformEventsToGibbonFormat(
                 $activitiesResult['activities'], 
-                $defaultGibbonCourseClassID, 
                 $role
             );
             
