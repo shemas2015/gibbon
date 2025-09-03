@@ -1283,6 +1283,40 @@ button[type="button"].bg-gray-100{
     background-color: transparent !important;
     text-decoration: underline !important;
 }
+
+/* Planner Buttons Choose a date */
+#planner1, #planner2, #yearSwitch{
+    background-color: var(--black) !important;
+    color: var(--white) !important;
+}
+
+#tabs-1-1[aria-selected="true"], #tabs-1-2[aria-selected="true"] {
+  color: var(--blue-theme-aquinas) !important;           /* your styles here */
+  /* e.g. border-color: #000; background: #fff; */
+}
+
+/* Departments Menu Bttns */
+
+.grid-item-department-container{
+
+}
+
+.grid-item-department-btn{
+    background-color: var(--white) !important;
+    border-radius: 0.25rem !important;
+    padding: 0.5rem !important;
+    border: 1px solid #CBDCE8 !important;
+    flex-direction: row !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.grid-item-department-btn a{
+    padding-left: 0.4rem !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    color: var(--black) !important;
+}
+
 @media (min-width:768px){
     #header{
         position: fixed !important;
@@ -1340,5 +1374,10 @@ button[type="button"].bg-gray-100{
     #wrapOuter{
         margin-top: 6rem;
 
+    }
+
+    .grid-item-department-container{
+        gap:0.5rem !important;
+        justify-content: flex-end !important;
     }
 }

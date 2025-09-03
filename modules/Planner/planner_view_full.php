@@ -1247,7 +1247,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Planner/planner_view_full.
                             }
                         }
 
-                        $grid = $form->addRow()->addGrid('attendance')->setClass('border bg-blue-50 rounded p-2 ')->setBreakpoints('w-1/2');
+                        $grid = $form->addRow()->addGrid('attendance')->setClass('bg-white rounded ')->setBreakpoints('w-1/2');
 
                         // Display attendance grid
                         $count = 0;

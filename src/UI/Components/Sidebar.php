@@ -608,7 +608,7 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                     echo "<td style='text-align: center'>";
                     if (isActionAccessible($guid, $connection2, '/modules/Attendance/attendance_take_byCourseClass.php') && $row['attendance'] == 'Y') {
                         echo "<a class='block' href='".Url::fromModuleRoute('Attendance', 'attendance_take_byCourseClass')->withQueryParam('gibbonCourseClassID', $row['gibbonCourseClassID'])."'title='".__('Take Attendance')."' >";
-                        echo icon('solid', 'users', $iconClass);
+                        echo icon('outline', 'user-outline', $iconClass);
                         echo "</a>";
                     } else {
                         echo "<a class='block' href='".Url::fromModuleRoute('Departments', 'department_course_class')->withQueryParam('gibbonCourseClassID', $row['gibbonCourseClassID'])->withFragment('participants')."' title='".__('Participants')."' >";
@@ -619,7 +619,7 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
                     if (isActionAccessible($guid, $connection2, '/modules/Planner/planner.php')) {
                         echo "<td style='text-align: center'>";
                         echo "<a class='block' href='".Url::fromModuleRoute('Planner', 'planner')->withQueryParams(['gibbonCourseClassID' => $row['gibbonCourseClassID'], 'viewBy' => 'class'])."' title='".__('View Planner')."'>";
-                        echo icon('solid', 'calendar', $iconClass);
+                        echo icon('outline', 'calendar-2', $iconClass);
                         echo "</a> ";
                         echo '</td>';
                     }
@@ -636,7 +636,7 @@ class Sidebar implements OutputableInterface, ContainerAwareInterface
 
                         echo "<td style='text-align: center'>";
                         echo "<a class='block' href='".Url::fromModuleRoute('Planner', 'planner_deadlines')->withQueryParam('gibbonCourseClassIDFilter', $row['gibbonCourseClassID'])."'  title='".__('View {homeworkName}', ['homeworkName' => __($homeworkNamePlural)])."'>";
-                        echo icon('solid', 'homework', $iconClass);
+                        echo icon('outline', 'list-outline', $iconClass);
                         echo "</a> ";
                         echo '</td>';
                     }
