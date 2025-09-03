@@ -147,17 +147,26 @@ class TodaysLessonsTable
         $table->addColumn('summary', __('Summary'))
             ->width('40%');
 
-        $table->addActionColumn()
-            ->addParam('gibbonSchoolYearID', $gibbonSchoolYearID)
-            ->addParam('gibbonPersonID', $gibbonPersonID)
-            ->addParam('gibbonPlannerEntryID')
-            ->addParam('gibbonCourseClassID')
-            ->addParam('viewBy', 'class')
-            ->addParam('search', $gibbonPersonID)
-            ->format(function ($values, $actions) {
-                $actions->addAction('view', __('View'))
-                    ->setURL('/modules/Planner/planner_view_full.php');
+        $table->addColumn('customLink', __('Custom'))
+            ->format(function ($values) use ($gibbonSchoolYearID, $gibbonPersonID) {
+                $url = '/index.php?' . http_build_query([
+                    'q' => "/modules/Planner/planner_view_full.php",
+                    'gibbonSchoolYearID' => $gibbonSchoolYearID,
+                    'gibbonPersonID' => $gibbonPersonID,
+                    'gibbonPlannerEntryID' => $values['gibbonPlannerEntryID'],
+                    'viewBy' => 'class',
+                    'search' => $gibbonPersonID
+                ]);
+                
+                return '
+                    <a href="' . htmlspecialchars($url) . '" @click="modalOpen = false" class="inline-flex items-center align-middle rounded-md bg-white px-3 py-2 text-sm font-semibold shadow-sm border border-gray-400 hover:bg-gray-100 hover:text-blue-500 hover:border-blue-500 text-gray-600 lg:text-gray-500">
+                        ' . icon('solid', 'eye', 'w-6 h-6 sm:h-5 sm:w-5 lg:-ml-0.5 lg:mr-1.5') . '
+                        <span class="hidden lg:block text-gray-800 whitespace-nowrap">
+                            View    
+                        </span>
+                    </a>';
             });
+
 
         return $table;
     }
